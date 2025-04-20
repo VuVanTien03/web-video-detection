@@ -1,0 +1,44 @@
+.chat-area {
+    width: 300px;
+    border-left: 1px solid #e0e0e0;
+    padding: 1rem;
+    background-color: #f9f9f9;
+  
+    &__message {
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
+      background-color: #fff;
+      border-radius: 4px;
+      border: 1px solid #e0e0e0;
+    }
+  
+    &__input {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+  
+      input {
+        flex: 1;
+        padding: 0.5rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+      }
+  
+      button {
+        padding: 0.5rem 1rem;
+        background-color: #bbdefb;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+    }
+  }
+  
+  .history-content {
+    display: flex;
+    gap: 1rem;
+  
+    .main-content__display {
+      flex: 1;
+    }
+  }

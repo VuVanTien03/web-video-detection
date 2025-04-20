@@ -1,0 +1,15 @@
+export const ROUTERS = {
+    USER : {
+        SIGNUP : '/signup',
+        LOGIN : '/login',
+        LOATDING : '/',
+        // HOMEPAGE : '/homepage',
+        HISTORY : '/history',
+        SETTINGS : '/settings'
+    },
+    ADMIN : {
+        HOME : '/admin/home',
+        USERLIST : '/admin/userlist',
+        USERPROFILE : '/admin/userprofile'
+    }
+}

@@ -1,0 +1,313 @@
+// VideoAnalyticsDashboard.scss
+
+// Variables
+$primary-color: #ff8fb1;
+$secondary-color: #ffaec0;
+$background-color: #f5f5f5;
+$text-color: #333;
+$border-radius: 12px;
+$box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+.dashboard-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: $background-color;
+  color: $text-color;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+// Header Styles - FIXED
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #fff;
+  box-shadow: $box-shadow;
+  position: relative;
+  
+  .menu-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    .menu-icon {
+      width: 20px;
+      height: 2px;
+      background-color: $text-color;
+      position: relative;
+      
+      &::before, &::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        background-color: $text-color;
+        left: 0;
+      }
+      
+      &::before {
+        top: -6px;
+      }
+      
+      &::after {
+        top: 6px;
+      }
+    }
+  }
+  
+  .search-bar {
+    flex: 1;
+    display: flex;
+    background-color: #f9e0c9;
+    border-radius: 20px;
+    overflow: hidden;
+    height: 32px;
+    margin: 0 10px;
+    
+    input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 8px 16px;
+      outline: none;
+      font-size: 14px;
+      color: #333;
+      
+      &::placeholder {
+        color: #888;
+      }
+    }
+    
+    .search-button {
+      background: none;
+      border: none;
+      padding: 0 16px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      .search-icon {
+        color: #333;
+        font-weight: bold;
+      }
+    }
+  }
+  
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: #76c258;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+  }
+}
+
+// Stats Cards
+.stats-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  gap: 16px;
+  
+  .stat-card {
+    flex: 1;
+    background-color: #fff;
+    border-radius: $border-radius;
+    padding: 16px;
+    box-shadow: $box-shadow;
+    text-align: center;
+    
+    .stat-title {
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: #666;
+    }
+    
+    .stat-value {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 0;
+      color: $text-color;
+    }
+  }
+}
+
+// Charts
+.charts-container {
+  display: flex;
+  padding: 0 16px 16px;
+  gap: 16px;
+  
+  .chart-section {
+    flex: 1;
+    background-color: #fff;
+    border-radius: $border-radius;
+    padding: 16px;
+    box-shadow: $box-shadow;
+    
+    .chart-title {
+      font-size: 14px;
+      margin-bottom: 16px;
+      text-align: center;
+      font-weight: normal;
+    }
+    
+    // Bar Chart
+    .bar-chart {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      height: 150px;
+      border-bottom: 1px solid #ddd;
+      position: relative;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background-image: linear-gradient(to right, #ddd 1px, transparent 1px),
+                          linear-gradient(to bottom, #ddd 1px, transparent 1px);
+        background-size: 16.666% 20%;
+        z-index: 0;
+        opacity: 0.4;
+      }
+      
+      .bar-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 14.28%;
+        
+        .bar {
+          width: 60%;
+          background-color: $primary-color;
+          border-radius: 4px 4px 0 0;
+          z-index: 1;
+        }
+        
+        .bar-label {
+          margin-top: 8px;
+          font-size: 12px;
+          color: #666;
+        }
+      }
+    }
+    
+    // Area Chart
+    .area-chart {
+      height: 150px;
+      position: relative;
+      
+      svg {
+        width: 100%;
+        height: 100%;
+        
+        .area-path {
+          fill: rgba(255, 143, 177, 0.2);
+          stroke: $primary-color;
+          stroke-width: 2;
+        }
+      }
+      
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background-image: linear-gradient(to right, #ddd 1px, transparent 1px),
+                          linear-gradient(to bottom, #ddd 1px, transparent 1px);
+        background-size: 16.666% 20%;
+        z-index: 0;
+        opacity: 0.4;
+      }
+    }
+  }
+}
+
+// Footer
+.dashboard-footer {
+  margin-top: auto;
+  display: flex;
+  background-color: #fff;
+  padding: 16px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  
+  .footer-text {
+    flex: 2;
+    font-size: 13px;
+    color: #666;
+    padding-right: 20px;
+    
+    p {
+      line-height: 1.5;
+      margin: 0;
+    }
+  }
+  
+  .footer-links {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    
+    .footer-title {
+      font-size: 14px;
+      margin-bottom: 10px;
+      color: #666;
+    }
+    
+    .social-links {
+      display: flex;
+      gap: 12px;
+      
+      .social-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        text-decoration: none;
+        transition: color 0.2s;
+        
+        &:hover {
+          color: $primary-color;
+        }
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .charts-container {
+    flex-direction: column;
+  }
+  
+  .dashboard-footer {
+    flex-direction: column;
+    
+    .footer-links {
+      align-items: flex-start;
+      margin-top: 16px;
+    }
+  }
+}
