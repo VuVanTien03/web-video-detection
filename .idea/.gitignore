@@ -1,0 +1,8 @@
+# Default ignored files
+/../../DataMining /.idea/shelf/
+/../../DataMining /.idea/workspace.xml
+# Editor-based HTTP Client requests
+/../../DataMining /.idea/httpRequests/
+# Datasource local storage ignored files
+/../../DataMining /.idea/dataSources/
+/../../DataMining /.idea/dataSources.local.xml

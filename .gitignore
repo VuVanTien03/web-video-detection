@@ -1,0 +1,11 @@
+# Virtual environments
+.venv/
+.venv_311/
+.venv_312/
+
+# Large model files
+*.pt
+*.onnx
+*.lib
+*.dll
+*.pyd
