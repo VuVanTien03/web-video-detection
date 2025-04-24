@@ -3,9 +3,10 @@ export const ROUTERS = {
         SIGNUP : '/signup',
         LOGIN : '/login',
         LOATDING : '/',
-        // HOMEPAGE : '/homepage',
+        HOMEPAGE : '/homepage',
         HISTORY : '/history',
-        SETTINGS : '/settings'
+        SETTINGS : '/settings',
+        DASHBOARD : '/dashboard'
     },
     ADMIN : {
         HOME : '/admin/home',

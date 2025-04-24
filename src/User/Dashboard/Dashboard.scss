@@ -1,201 +1,173 @@
-// Dashboard.scss
 .dashboard {
   display: flex;
-  height: 100vh;
-  background-color: #f5f5f5;
-}
-
-// Main Content
-.main-content {
-  flex: 1;
-  margin-left: 190px;
-  margin-top: 70px;
-  padding: 2rem 3rem;
-  background-color: #fff;
-  min-height: calc(100vh - 70px);
-  border-radius: 10px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  display: flex;
   flex-direction: column;
-  align-items: center;
-}
-
-// Action Tabs
-.action-tabs {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-
-  .action-tab {
-    border: none;
-    border-radius: 20px;
-    padding: 0.6rem 1.5rem;
-    font-size: 1rem;
-    cursor: pointer;
-    font-weight: normal;
-    transition: opacity 0.2s;
-    background-color: #e0e0e0;
-    color: #333;
-
-    &--active {
-      background-color: #ffd7d7;
-    }
-
-    &:hover {
-      opacity: 0.85;
-    }
-  }
-}
-
-// Search Bar
-.search-bar {
-  margin-bottom: 2rem;
+  height: 100vh;
   width: 100%;
-  max-width: 600px;
+  overflow: hidden;
+  position: relative;
 
-  .search-input {
+  // Phần header
+  header {
     width: 100%;
-    padding: 0.7rem 1rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    text-align: center;
+    flex-shrink: 0;
+    z-index: 10;
+  }
 
-    &:focus {
-      outline: none;
-      border-color: #bdbdbd;
-    }
+  // Layout chính
+  &-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    height: calc(100vh - 60px); // Giả sử header cao 60px
+  }
 
-    &::placeholder {
-      color: #aaa;
-    }
+  // Layout cho sidebar và main content
+  display: grid;
+  grid-template-columns: 240px 1fr; // Sidebar width 240px
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "header header"
+    "sidebar main";
+
+  header {
+    grid-area: header;
+  }
+
+  .sidebar {
+    grid-area: sidebar;
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  .dashboard-content {
+    grid-area: main;
+    overflow-y: auto;
+    padding: 20px;
+    background-color: #f5f5f5;
   }
 }
 
-// Content Items
-.content-items {
+// Đảm bảo Homepage và History được hiển thị đầy đủ trong container
+.homepage, .history-content {
+  height: 100%;
   width: 100%;
-  max-width: 800px;
+  overflow: auto;
+}
 
-  .content-item {
+// Định dạng cho các phần trong content
+.main-content {
+  &__actions {
     display: flex;
-    align-items: center;
-    background-color: #fff;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1rem;
-    border: 1px solid #eee;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
 
-    &__thumbnail {
-      flex: 0 0 160px;
-      height: 90px;
-      overflow: hidden;
-
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+  &__button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    
+    &.upload-file {
+      background-color: #4caf50;
+      color: white;
+      
+      &:hover {
+        background-color: darken(#4caf50, 10%);
       }
     }
-
-    &__info {
-      flex: 1;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+    
+    &.input-url {
+      background-color: #2196f3;
+      color: white;
+      
+      &:hover {
+        background-color: darken(#2196f3, 10%);
+      }
     }
-
-    &__title {
-      margin: 0 0 0.5rem 0;
-      font-size: 1rem;
-      font-weight: bold;
-      color: #333;
-    }
-
-    &__description {
-      margin: 0;
-      font-size: 0.85rem;
-      color: #666;
+    
+    &.upload-video {
+      background-color: #ff9800;
+      color: white;
+      
+      &:hover {
+        background-color: darken(#ff9800, 10%);
+      }
     }
   }
-}
 
-// Additional Info
-.additional-info {
-  width: 100%;
-  max-width: 800px;
-  margin-top: 2rem;
-
-  .info-section {
-    margin-bottom: 1.5rem;
-
-    h4 {
-      margin: 0 0 0.5rem 0;
-      font-size: 1rem;
-      font-weight: bold;
-      color: #333;
+  &__search {
+    margin-bottom: 20px;
+    
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      font-size: 16px;
+      
+      &:focus {
+        outline: none;
+        border-color: #2196f3;
+        box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+      }
     }
+  }
 
+  &__display {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    
+    video {
+      width: 100%;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+    
+    h3 {
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+    
     p {
-      margin: 0;
-      font-size: 0.85rem;
       color: #666;
+      line-height: 1.5;
     }
   }
 }
 
-// Other Info
-.other-info {
-  width: 100%;
-  max-width: 800px;
-  margin-top: 2rem;
-
-  h4 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1rem;
-    font-weight: bold;
-    color: #333;
-  }
-
-  ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-
-    li {
-      font-size: 0.85rem;
-      color: #666;
-      margin-bottom: 0.5rem;
-    }
-  }
-}
-
-// Header styles
-header.header {
+// Định dạng cho Chatbot
+.chatbot {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 70px;
-  background-color: #fff;
-  border-bottom: 1px solid #eaeaea;
+  bottom: 20px;
+  right: 20px;
   z-index: 100;
-  padding: 0 2rem;
-  display: flex;
-  align-items: center;
 }
 
-// Sidebar styles
-.sidebar {
-  position: fixed;
-  top: 70px;
-  left: 0;
-  width: 190px;
-  height: calc(100vh - 70px);
-  background-color: #fff;
-  border-right: 1px solid #eaeaea;
-  padding: 1.5rem 0;
-  z-index: 90;
+// Media queries cho responsive
+@media (max-width: 768px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "header"
+      "main";
+  }
+  
+  .sidebar {
+    position: fixed;
+    left: -240px;
+    top: 60px;
+    height: calc(100vh - 60px);
+    transition: left 0.3s ease;
+    z-index: 100;
+    
+    &--open {
+      left: 0;
+    }
+  }
 }

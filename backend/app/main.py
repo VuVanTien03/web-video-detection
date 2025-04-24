@@ -10,6 +10,7 @@ from app.routes import user, video, auth
 from app.database import database
 import aiofiles
 
+
 # Thiết lập logging
 logging.basicConfig(
     level=logging.INFO,
@@ -80,3 +81,12 @@ async def startup_db_client():
 @app.on_event("shutdown")
 async def shutdown_db_client():
     logger.info("Shutting down the application")
+
+@app.get(f"{settings.API_V1_STR}/test-mongo")
+async def test_mongo_connection():
+    try:
+        collections = await database.list_collection_names()
+        return {"status": "success", "collections": collections}
+    except Exception as e:
+        logger.error(f"MongoDB connection error: {str(e)}")
+        raise HTTPException(status_code=500, detail="MongoDB connection failed")

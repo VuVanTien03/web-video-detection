@@ -20,7 +20,7 @@ const Login = () => {
       formData.append('username', email); // FastAPI sử dụng 'username' cho đăng nhập
       formData.append('password', password);
 
-      const response = await fetch('http://localhost:8000/auth/login', {
+      const response = await fetch('http://localhost:8000/api/v1/auth/token', {
         method: 'POST',
         body: formData,
       });
@@ -35,12 +35,52 @@ const Login = () => {
       localStorage.setItem('token', data.access_token);
       localStorage.setItem('token_type', data.token_type);
       
-      // Redirect sau khi đăng nhập thành công
-      navigate('/dashboard');
+      // Lấy thông tin người dùng sau khi đăng nhập
+      const userData = await fetchUserInfo(data.access_token);
+      
+      // Gửi một event thông báo rằng người dùng đã đăng nhập
+      window.dispatchEvent(new Event('userLoggedIn'));
+      
+      // Redirect sau khi đăng nhập thành công - thay đổi thành Dashboard
+      
+      // if (userData.role == 'user') {
+      //   navigate('/dashboard'); // Route dành cho admin
+      // } else {
+        navigate('/Dashboard'); // Route dành cho user
+      // }
     } catch (err) {
+      console.error('Lỗi đăng nhập:', err);
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Hàm lấy thông tin người dùng
+  const fetchUserInfo = async (token) => {
+    try {
+      console.log('Đang lấy thông tin người dùng với token:', token);
+      const response = await fetch('http://localhost:8000/api/v1/users/me', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Không thể lấy thông tin người dùng');
+      }
+
+      const userData = await response.json();
+      console.log('Đã lấy được thông tin người dùng:', userData);
+      
+      // Lưu thông tin người dùng vào localStorage với key 'user_profile'
+      localStorage.setItem('user_profile', JSON.stringify(userData));
+      return userData;
+    } catch (error) {
+      console.error('Lỗi khi lấy thông tin người dùng:', error);
+      return null;
     }
   };
 

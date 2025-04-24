@@ -7,24 +7,15 @@ import Homepage from '../Homepage/Homepage';
 import History from '../History/History';
 
 const Dashboard = () => {
-  const [activeMenuItem, setActiveMenuItem] = useState('home'); // Default is home
-  const [content, setContent] = useState(null);
+  const [activeMenuItem, setActiveMenuItem] = useState('home');
+  
+  // State riêng cho trang chủ
+  const [homeContent, setHomeContent] = useState(null);
+  // State riêng cho trang lịch sử
+  const [historyContent, setHistoryContent] = useState(null);
 
   const handleMenuItemClick = (menuItem) => {
     setActiveMenuItem(menuItem);
-  };
-
-  const handleUploadFile = () => {
-    alert('Tải file lên chưa được triển khai!');
-  };
-
-  const handleInputURL = () => {
-    const url = prompt('Nhập URL:');
-    if (url) setContent(<p>Đang tải nội dung từ URL: {url}</p>);
-  };
-
-  const handleUploadVideo = () => {
-    alert('Tải video chưa được triển khai!');
   };
 
   return (
@@ -33,18 +24,15 @@ const Dashboard = () => {
       <Sidebar onMenuItemClick={handleMenuItemClick} activeMenuItem={activeMenuItem} />
       <main className="dashboard-content">
         {activeMenuItem === 'home' && (
-          <Homepage 
-            content={content} 
-            setContent={setContent}
-            handleUploadFile={handleUploadFile}
-            handleInputURL={handleInputURL}
-            handleUploadVideo={handleUploadVideo}
+          <Homepage
+            content={homeContent}
+            setContent={setHomeContent}
           />
         )}
         {activeMenuItem === 'history' && (
-          <History 
-            content={content} 
-            setContent={setContent}
+          <History
+            content={historyContent}
+            setContent={setHistoryContent}
           />
         )}
       </main>

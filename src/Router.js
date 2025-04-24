@@ -18,6 +18,7 @@ const RouterCustom = () => {
             <Route path={ROUTERS.USER.HOMEPAGE} element={<Homepage />} />
             <Route path={ROUTERS.USER.DASHBOARD} element={<Dashboard />} />
             <Route path={ROUTERS.USER.HISTORY} element={<History />} />
+            <Route path={ROUTERS.USER.DASHBOARD} element={<Dashboard />} />
             {/* Admin */}
             <Route path={ROUTERS.ADMIN.HOME} element={<Home />} />
             <Route path={ROUTERS.ADMIN.USERLIST} element={<UserList />} />
