@@ -8,7 +8,7 @@ import numpy as np
 import time 
 # import onnxruntime 
 # ===== Khởi tạo model =====
-weights_path = r"D:\code\python\DataMining\yolov9\owncode\data\weight.pt"
+weights_path = r"D:\code\python\DataMining\yolov9\owncode\data\gelan_t.pt"
 class_file = r"D:\code\python\DataMining\yolov9\owncode\data\classes.names"
 weight_onnx = r"D:\code\python\DataMining\yolov9\owncode\data\weight.onnx"
 
@@ -132,6 +132,8 @@ def new_process_video(video_path):
                 x1 , y1 , x2 , y2 , conf , class_id = det[:6]
                 x1 , y1 , x2 , y2 = map(int , [x1 , y1 , x2 , y2])
                 class_id = int(class_id)
+                if conf < 0.6: 
+                    continue
                 if class_id == 3 :
                     color = colors[3].tolist()
                     label = class_names[class_id]
@@ -197,7 +199,7 @@ if __name__ == "__main__":
     # open_video(video_path)
     video_path2 = r"D:\Downloads\videoplayback.mp4"
     video_path3 = r"D:\Downloads\10 Fastest Finishes in UFC History 🏆.mp4"
-    new_process_video(video_path3)
-    # time_excute(video_path3)
+    # new_process_video(video_path3)
+    time_excute(video_path3)
     # show_video(video_path3)
     
