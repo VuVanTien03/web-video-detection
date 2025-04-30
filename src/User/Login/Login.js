@@ -15,9 +15,17 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // FormData sử dụng cho OAuth2PasswordRequestForm trong FastAPI
+      // Validate đơn giản
+      if (!email.includes('@')) {
+        throw new Error('Email không hợp lệ');
+      }
+      if (password.length < 6) {
+        throw new Error('Mật khẩu phải có ít nhất 6 ký tự');
+      }
+
+      // Tạo form data cho FastAPI OAuth2
       const formData = new FormData();
-      formData.append('username', email); // FastAPI sử dụng 'username' cho đăng nhập
+      formData.append('username', email);
       formData.append('password', password);
 
       const response = await fetch('http://localhost:8000/api/v1/auth/token', {
@@ -31,23 +39,25 @@ const Login = () => {
         throw new Error(data.detail || 'Đăng nhập thất bại');
       }
 
-      // Lưu token vào localStorage
+      // Lưu token
       localStorage.setItem('token', data.access_token);
       localStorage.setItem('token_type', data.token_type);
-      
-      // Lấy thông tin người dùng sau khi đăng nhập
+
+      // Lấy thông tin user
       const userData = await fetchUserInfo(data.access_token);
-      
-      // Gửi một event thông báo rằng người dùng đã đăng nhập
+
+      if (!userData) {
+        throw new Error('Không thể lấy thông tin người dùng');
+      }
+
       window.dispatchEvent(new Event('userLoggedIn'));
-      
-      // Redirect sau khi đăng nhập thành công - thay đổi thành Dashboard
-      
-      // if (userData.role == 'user') {
-      //   navigate('/dashboard'); // Route dành cho admin
-      // } else {
-        navigate('/Dashboard'); // Route dành cho user
-      // }
+
+      // Điều hướng theo role
+      if (userData.role === 'user') {
+        navigate('/dashboard');
+      } else {
+        navigate('/admin/home');
+      }
     } catch (err) {
       console.error('Lỗi đăng nhập:', err);
       setError(err.message);
@@ -56,7 +66,6 @@ const Login = () => {
     }
   };
 
-  // Hàm lấy thông tin người dùng
   const fetchUserInfo = async (token) => {
     try {
       console.log('Đang lấy thông tin người dùng với token:', token);
@@ -64,28 +73,28 @@ const Login = () => {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       if (!response.ok) {
-        throw new Error('Không thể lấy thông tin người dùng');
+        console.error('Response lấy user:', await response.text());
+        return null;
       }
 
       const userData = await response.json();
-      console.log('Đã lấy được thông tin người dùng:', userData);
-      
-      // Lưu thông tin người dùng vào localStorage với key 'user_profile'
+      console.log('Thông tin người dùng:', userData);
+
+      // Lưu user profile vào localStorage
       localStorage.setItem('user_profile', JSON.stringify(userData));
       return userData;
     } catch (error) {
-      console.error('Lỗi khi lấy thông tin người dùng:', error);
+      console.error('Lỗi lấy thông tin người dùng:', error);
       return null;
     }
   };
 
   const handleGoogleLogin = () => {
-    // Xử lý đăng nhập bằng Google (nếu có)
     alert('Chức năng đăng nhập bằng Google chưa được triển khai');
   };
 
@@ -98,8 +107,8 @@ const Login = () => {
           <div className="form-group">
             <label>Email</label>
             <input 
-              type="email" 
-              placeholder="john.doe@email.com" 
+              type="email"
+              placeholder="john.doe@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -108,8 +117,8 @@ const Login = () => {
           <div className="form-group">
             <label>Password</label>
             <input 
-              type="password" 
-              placeholder="********" 
+              type="password"
+              placeholder="********"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required

@@ -1,4 +1,5 @@
 # File: app/routes/video.py
+# File: app/routes/video.py
 from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, UploadFile, status, BackgroundTasks, Path, Query
 from fastapi.responses import JSONResponse
 from typing import List, Optional
@@ -16,6 +17,8 @@ from datetime import datetime
 from bson import ObjectId
 import shutil
 from app.config import settings
+from app.schemas.upload_video_response import UploadVideoResponse
+
 
 router = APIRouter(prefix="/videos", tags=["videos"])
 
@@ -27,40 +30,31 @@ async def upload_video(
     file: UploadFile = File(...),
     current_user = Depends(get_current_active_user)
 ):
-    # Kiểm tra phần mở rộng của file
     if not validate_video_file_extension(file.filename):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"File type not allowed. Allowed types: {', '.join(settings.ALLOWED_VIDEO_TYPES)}"
         )
-    
-    # Tạo thư mục cho người dùng nếu chưa tồn tại
+
     user_upload_dir = os.path.join(settings.UPLOAD_DIR, f"user_{str(current_user['_id'])}")
     os.makedirs(user_upload_dir, exist_ok=True)
-    
-    # Tạo tên file mới để tránh trùng lặp
+
     unique_filename = f"{uuid.uuid4().hex}_{file.filename}"
     file_path = os.path.join(user_upload_dir, unique_filename)
-    
-    # Lưu file
+
     async with aiofiles.open(file_path, 'wb') as out_file:
-        # Đọc và ghi từng phần của file để tránh tải quá nhiều vào bộ nhớ
-        while content := await file.read(1024 * 1024):  # Đọc từng 1MB
+        while content := await file.read(1024 * 1024):
             await out_file.write(content)
-    
-    # Lấy kích thước file
+
     file_size = os.path.getsize(file_path)
-    
-    # Kiểm tra kích thước file
+
     if not validate_video_size(file_size):
-        # Xóa file nếu kích thước quá lớn
         os.remove(file_path)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"File size exceeds maximum allowed size ({settings.MAX_VIDEO_SIZE / (1024 * 1024)} MB)"
         )
-    
-    # Tạo document mới trong collection videos
+
     new_video = {
         "user_id": current_user["_id"],
         "title": title,
@@ -72,30 +66,27 @@ async def upload_video(
         "size": file_size,
         "status": "pending"
     }
-    
+
     result = await video_collection.insert_one(new_video)
-    
-    # Thêm task xử lý video vào background
     video_id = result.inserted_id
     background_tasks.add_task(process_video, str(video_id))
-    
-    # Lấy thông tin video vừa tạo
     created_video = await video_collection.find_one({"_id": video_id})
-    
-    # Chuyển định dạng để trả về
+
     return {
-        "id": str(created_video["_id"]),
-        "user_id": str(created_video["user_id"]),
-        "title": created_video["title"],
-        "description": created_video.get("description"),
-        "original_filename": created_video.get("original_filename"),
-        "file_path": created_video.get("file_path"),
-        "url": created_video.get("url"),
-        "source_type": created_video["source_type"],
-        "upload_date": created_video["upload_date"],
-        "duration": created_video.get("duration"),
-        "size": created_video.get("size"),
-        "status": created_video["status"]
+        "video": {
+            "id": str(created_video["_id"]),
+            "user_id": str(created_video["user_id"]),
+            "title": created_video["title"],
+            "description": created_video.get("description"),
+            "original_filename": created_video.get("original_filename"),
+            "file_path": created_video.get("file_path"),
+            "video_url": created_video.get("url") or "",
+            "source_type": created_video["source_type"],
+            "upload_date": created_video["upload_date"],
+            "duration": created_video.get("duration"),
+            "size": created_video.get("size"),
+            "status": created_video["status"]
+        }
     }
 
 @router.post("/url", response_model=VideoResponse)
@@ -104,7 +95,6 @@ async def create_url_video(
     video: VideoCreateUrl,
     current_user = Depends(get_current_active_user)
 ):
-    # Tạo document mới trong collection videos
     new_video = {
         "user_id": current_user["_id"],
         "title": video.title,
@@ -114,31 +104,31 @@ async def create_url_video(
         "upload_date": datetime.now(),
         "status": "pending"
     }
-    
+
     result = await video_collection.insert_one(new_video)
-    
-    # Thêm task xử lý video vào background
     video_id = result.inserted_id
     background_tasks.add_task(process_video, str(video_id))
-    
-    # Lấy thông tin video vừa tạo
     created_video = await video_collection.find_one({"_id": video_id})
-    
-    # Chuyển định dạng để trả về
+
     return {
-        "id": str(created_video["_id"]),
-        "user_id": str(created_video["user_id"]),
-        "title": created_video["title"],
-        "description": created_video.get("description"),
-        "original_filename": created_video.get("original_filename"),
-        "file_path": created_video.get("file_path"),
-        "url": created_video.get("url"),
-        "source_type": created_video["source_type"],
-        "upload_date": created_video["upload_date"],
-        "duration": created_video.get("duration"),
-        "size": created_video.get("size"),
-        "status": created_video["status"]
+        "video": {
+            "id": str(created_video["_id"]),
+            "user_id": str(created_video["user_id"]),
+            "title": created_video["title"],
+            "description": created_video.get("description"),
+            "original_filename": created_video.get("original_filename"),
+            "file_path": created_video.get("file_path"),
+            "video_url": created_video.get("url") or "",
+            "source_type": created_video["source_type"],
+            "upload_date": created_video["upload_date"],
+            "duration": created_video.get("duration"),
+            "size": created_video.get("size"),
+            "status": created_video["status"]
+        }
     }
+
+# Các endpoint khác giữ nguyên như cũ
+
 
 @router.get("/", response_model=List[VideoResponse])
 async def get_videos(

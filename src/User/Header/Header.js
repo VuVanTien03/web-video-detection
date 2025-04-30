@@ -12,8 +12,10 @@ const Header = () => {
   useEffect(() => {
     // Kiểm tra nếu đã có thông tin trong localStorage
     const checkStoredUserData = () => {
-      const storedUserData = localStorage.getItem('userData');
+      // Thử lấy từ cả hai key có thể có: user_profile và userData
+      const storedUserData = localStorage.getItem('user_profile') || localStorage.getItem('userData');
       if (storedUserData) {
+        console.log('Đã tìm thấy thông tin người dùng trong localStorage:', JSON.parse(storedUserData));
         setUserInfo(JSON.parse(storedUserData));
       } else if (localStorage.getItem('token')) {
         // Nếu có token nhưng không có userData, gọi API để lấy thông tin
@@ -54,9 +56,10 @@ const Header = () => {
       }
 
       const data = await response.json();
+      console.log('Thông tin người dùng từ API:', data);
       setUserInfo(data);
       // Lưu thông tin vào localStorage để lần sau không cần gọi API
-      localStorage.setItem('userData', JSON.stringify(data));
+      localStorage.setItem('user_profile', JSON.stringify(data));
     } catch (error) {
       console.error('Lỗi khi lấy thông tin người dùng:', error);
     } finally {
@@ -65,6 +68,9 @@ const Header = () => {
   };
 
   const handleUserClick = () => {
+    if (!userInfo && localStorage.getItem('token')) {
+      fetchUserInfo();
+    }
     setShowUserInfo(!showUserInfo);
   };
 
@@ -72,12 +78,25 @@ const Header = () => {
     // Xóa token và thông tin người dùng
     localStorage.removeItem('token');
     localStorage.removeItem('token_type');
+    localStorage.removeItem('user_profile');
     localStorage.removeItem('userData');
     setUserInfo(null);
     setShowUserInfo(false);
     
     // Chuyển về trang đăng nhập
     navigate('/login');
+  };
+
+  // Lấy tên hiển thị từ full_name hoặc username
+  const getDisplayName = () => {
+    if (!userInfo) return null;
+    return userInfo.full_name || userInfo.username || 'Người dùng';
+  };
+
+  // Lấy chữ cái đầu tiên để hiển thị avatar
+  const getInitial = () => {
+    const displayName = getDisplayName();
+    return displayName ? displayName.charAt(0).toUpperCase() : '?';
   };
 
   return (
@@ -89,9 +108,9 @@ const Header = () => {
       <div className="header__actions">
         <div className="header__user">
           <button className="header__user-btn" onClick={handleUserClick}>
-            {userInfo && userInfo.name ? (
+            {userInfo ? (
               <div className="header__user-avatar-btn">
-                {userInfo.name.charAt(0).toUpperCase()}
+                {getInitial()}
               </div>
             ) : (
               '👤'
@@ -106,15 +125,15 @@ const Header = () => {
                 <>
                   <div className="header__user-avatar">
                     {userInfo.avatar ? (
-                      <img src={userInfo.avatar} alt={userInfo.name} />
+                      <img src={userInfo.avatar} alt={getDisplayName()} />
                     ) : (
                       <div className="header__default-avatar">
-                        {userInfo.name ? userInfo.name.charAt(0).toUpperCase() : '?'}
+                        {getInitial()}
                       </div>
                     )}
                   </div>
                   <div className="header__user-details">
-                    <h3>{userInfo.name || userInfo.username || 'Người dùng'}</h3>
+                    <h3>{getDisplayName()}</h3>
                     <p>{userInfo.email}</p>
                     {userInfo.role && <p className="header__user-role">{userInfo.role}</p>}
                   </div>

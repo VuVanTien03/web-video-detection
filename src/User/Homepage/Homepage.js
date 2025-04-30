@@ -1,14 +1,13 @@
+// Homepage.js
 import React, { useState } from 'react';
 import './Homepage.scss';
 
 const Homepage = ({ content, setContent }) => {
-  // State lưu URL video hiện tại đang phát
   const [currentVideoUrl, setCurrentVideoUrl] = useState("sample-video.mp4");
-  // State lưu tiêu đề và mô tả của video hiện tại
   const [videoTitle, setVideoTitle] = useState("Video có hành vi côn đồ KHÔNG?");
   const [videoDescription, setVideoDescription] = useState("- OST Phim \"Bộ Tư Bốn...\"");
+  const [isUploading, setIsUploading] = useState(false);
 
-  // Upload video từ máy
   const handleUploadFile = async () => {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
@@ -25,6 +24,7 @@ const Homepage = ({ content, setContent }) => {
       formData.append('status', 'public');
 
       try {
+        setIsUploading(true);
         const res = await fetch('http://localhost:8000/api/v1/videos/upload', {
           method: 'POST',
           headers: {
@@ -34,23 +34,24 @@ const Homepage = ({ content, setContent }) => {
         });
 
         const data = await res.json();
-        // Cập nhật video hiện tại
         setCurrentVideoUrl(data.video.video_url);
         setVideoTitle(data.video.title);
         setVideoDescription(data.video.description);
       } catch (error) {
         console.error('Upload thất bại:', error);
+      } finally {
+        setIsUploading(false);
       }
     };
     fileInput.click();
   };
 
-  // Tải video từ URL
   const handleInputURL = async () => {
     const url = prompt('Nhập URL video:');
     if (!url) return;
 
     try {
+      setIsUploading(true);
       const res = await fetch('http://localhost:8000/api/v1/videos/url', {
         method: 'POST',
         headers: {
@@ -67,16 +68,16 @@ const Homepage = ({ content, setContent }) => {
       });
 
       const data = await res.json();
-      // Cập nhật video hiện tại
       setCurrentVideoUrl(data.video.video_url);
       setVideoTitle(data.video.title);
       setVideoDescription(data.video.description);
     } catch (error) {
       console.error('Tải từ URL thất bại:', error);
+    } finally {
+      setIsUploading(false);
     }
   };
 
-  // Hiển thị tất cả video đã upload
   const handleUploadVideo = async () => {
     try {
       const res = await fetch('http://localhost:8000/api/v1/videos/', {
@@ -98,7 +99,7 @@ const Homepage = ({ content, setContent }) => {
                   setCurrentVideoUrl(video.video_url);
                   setVideoTitle(video.title);
                   setVideoDescription(video.description);
-                  setContent(null); // Đóng danh sách và hiển thị video được chọn
+                  setContent(null);
                 }}
               >
                 <h3>{video.title}</h3>
@@ -133,15 +134,22 @@ const Homepage = ({ content, setContent }) => {
         <input type="text" placeholder="Search" />
       </div>
       <div className="main-content__display">
-        {content || (
-          <div>
-            <video controls width="400">
-              <source src={currentVideoUrl} type="video/mp4" />
-              Trình duyệt của bạn không hỗ trợ video.
-            </video>
-            <h3>{videoTitle}</h3>
-            <p>{videoDescription}</p>
+        {isUploading ? (
+          <div className="loading">
+            <div className="spinner"></div>
+            <p>Đang tải video...</p>
           </div>
+        ) : (
+          content || (
+            <div>
+              <video controls width="400">
+                <source src={currentVideoUrl} type="video/mp4" />
+                Trình duyệt của bạn không hỗ trợ video.
+              </video>
+              <h3>{videoTitle}</h3>
+              <p>{videoDescription}</p>
+            </div>
+          )
         )}
       </div>
     </div>
