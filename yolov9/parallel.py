@@ -50,7 +50,7 @@ def show_video(video_path):
             for det in pre:
                 x1 , y1 , x2 , y2 , conf , class_id = det[:6]
                 x1 , y1 , x2 , y2 = map(int , [x1 , y1 , x2 , y2])
-                if conf < 0.75 : 
+                if conf < 0.8 : 
                     continue
                 label = "violence"
                 conf = str(conf.item())
@@ -101,6 +101,7 @@ if __name__=="__main__":
     threading.Thread(target=yolo_worker, daemon=True).start()
     video_path = r"D:\Downloads\Gym Fight over a Cable Machine 🤔 💪🏼 Let’s see who Wins 🏆 #fighting #gym #fighter #shorts #viral.mp4"
     video_path3 = r"D:\Downloads\10 Fastest Finishes in UFC History 🏆.mp4"
-    # show_video(video_path)
+    video4 = r"D:\Downloads\videoplayback (1).mp4"
+    show_video(video4)
     # print(get_fps(video_path3))
-    track(video_path3)
+    # track(video_path3)

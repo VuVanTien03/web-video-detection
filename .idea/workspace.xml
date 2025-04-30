@@ -5,141 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5ca3971d-4868-42fa-8d58-0b52e9a7e943" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/web-video-detection" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/datamining.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/datamining.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/LICENSE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/ONNX.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/benchmarks.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/classify/predict.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/classify/train.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/classify/val.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/convert_to_onnx.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/data/coco.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/data/hyps/hyp.scratch-high.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/data/images/horses.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/detect.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/detect_dual.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/down_fps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/export.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/figure/horses_prediction.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/figure/multitask.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/figure/performance.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/hubconf.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/log.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/common.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/detect/gelan-c.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/detect/gelan-e.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/detect/gelan-m.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/detect/gelan-s.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/detect/gelan-t.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/detect/gelan.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/detect/yolov7-af.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/detect/yolov9-c.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/detect/yolov9-cf.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/detect/yolov9-e.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/detect/yolov9-m.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/detect/yolov9-s.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/detect/yolov9-t.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/detect/yolov9.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/experimental.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/hub/anchors.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/hub/yolov3-spp.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/hub/yolov3-tiny.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/hub/yolov3.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/panoptic/gelan-c-pan.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/panoptic/yolov7-af-pan.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/segment/gelan-c-dseg.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/segment/gelan-c-seg.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/segment/yolov7-af-seg.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/segment/yolov9-c-dseg.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/tf.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/models/yolo.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/own_tracking.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/owncode/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/owncode/data/classes.names" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/owncode/setup.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/panoptic/predict.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/panoptic/train.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/panoptic/val.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/requirements.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/runs/detect/exp/image1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/runs/detect/exp2/image2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/scripts/get_coco.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/segment/predict.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/segment/train.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/segment/train_dual.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/segment/val.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/segment/val_dual.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/setup.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/test.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/tools/reparameterization.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/train.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/train_dual.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/train_triple.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/activations.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/augmentations.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/autoanchor.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/autobatch.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/callbacks.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/coco_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/dataloaders.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/downloads.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/general.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/lion.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/loggers/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/loggers/clearml/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/loggers/clearml/clearml_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/loggers/clearml/hpo.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/loggers/comet/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/loggers/comet/comet_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/loggers/comet/hpo.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/loggers/comet/optimizer_config.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/loggers/wandb/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/loggers/wandb/log_dataset.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/loggers/wandb/sweep.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/loggers/wandb/sweep.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/loggers/wandb/wandb_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/loss.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/loss_tal.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/loss_tal_dual.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/loss_tal_triple.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/metrics.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/panoptic/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/panoptic/augmentations.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/panoptic/dataloaders.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/panoptic/general.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/panoptic/loss.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/panoptic/loss_tal.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/panoptic/metrics.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/panoptic/plots.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/panoptic/tal/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/panoptic/tal/anchor_generator.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/panoptic/tal/assigner.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/plots.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/segment/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/segment/augmentations.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/segment/dataloaders.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/segment/general.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/segment/loss.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/segment/loss_tal.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/segment/loss_tal_dual.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/segment/metrics.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/segment/plots.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/segment/tal/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/segment/tal/anchor_generator.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/segment/tal/assigner.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/tal/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/tal/anchor_generator.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/tal/assigner.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/torch_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/utils/triton.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/val.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/val_dual.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/val_triple.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolov9/violence_tracking.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -147,29 +13,29 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/web-video-detection" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 0
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
   <component name="ProjectId" id="2wLZV9vnVgvQ5xn114iYfiPnMSL" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "gfoctoups",
-    "last_opened_file_path": "D:/code/python/DataMining",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;gfoctopus&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/code/python/DataMining&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
