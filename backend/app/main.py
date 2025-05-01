@@ -9,8 +9,8 @@ from app.config import settings
 from app.routes import user, video, auth
 from app.database import database
 import aiofiles
-
-
+import sys 
+sys.path.append(r'D:\code\python\DataMining\yolov9')
 # Thiết lập logging
 logging.basicConfig(
     level=logging.INFO,

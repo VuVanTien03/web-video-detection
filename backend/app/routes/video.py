@@ -11,18 +11,19 @@ from app.schemas.processed_video import ProcessedVideoResponse
 from app.utils.security import get_current_active_user
 from app.database import video_collection, processed_video_collection
 from app.services.video_processor import process_video
-from app.services.video_service import get_video_by_id, get_processed_video_by_video_id, delete_video
+from app.services.video_service import get_video_by_id, get_processed_video_by_video_id, delete_video , track_video_service
 from app.utils.validators import validate_video_file_extension, validate_video_size
 from datetime import datetime
 from bson import ObjectId
 import shutil
 from app.config import settings
 from app.schemas.upload_video_response import UploadVideoResponse
+from fastapi.responses import StreamingResponse
 
 
 router = APIRouter(prefix="/videos", tags=["videos"])
 
-@router.post("/upload", response_model=VideoResponse)
+@router.post("/upload") #response_model=VideoResponse)
 async def upload_video(
     background_tasks: BackgroundTasks,
     title: str = Form(...),
@@ -541,3 +542,16 @@ async def search_videos(
         })
     
     return videos
+
+
+# Định nghĩa API route track_video
+@router.get("/track_video/{video_id}")
+async def track_video(video_id: str):
+    """
+    API stream video đã xử lý YOLO.
+    """
+    try:
+        return await track_video_service(video_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
