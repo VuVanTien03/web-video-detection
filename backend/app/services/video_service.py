@@ -132,10 +132,6 @@ def yolo_worker(model, image_stack, result):
             predictions = model(frame)
             result.put(predictions)  # Đưa kết quả vào queue
 
-import cv2
-import time
-from fastapi.responses import StreamingResponse
-import numpy as np
 
 def show_video_stream(video_path, image_stack, result):
     cap = cv2.VideoCapture(video_path)
