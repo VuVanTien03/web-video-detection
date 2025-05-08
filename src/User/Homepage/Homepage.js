@@ -1,5 +1,5 @@
 // Homepage.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Homepage.scss';
 
 const Homepage = ({ content, setContent }) => {
@@ -7,6 +7,7 @@ const Homepage = ({ content, setContent }) => {
   const [videoTitle, setVideoTitle] = useState("Video có hành vi côn đồ KHÔNG?");
   const [videoDescription, setVideoDescription] = useState("- OST Phim \"Bộ Tư Bốn...\"");
   const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleUploadFile = async () => {
     const fileInput = document.createElement('input');
@@ -25,20 +26,50 @@ const Homepage = ({ content, setContent }) => {
 
       try {
         setIsUploading(true);
+        setError("");
+        console.log("Đang tải file lên:", file.name, "Kích thước:", file.size);
+        
+        // Kiểm tra token trước khi gửi request
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error("Không tìm thấy token, vui lòng đăng nhập lại");
+        }
+        console.log("Token tìm thấy:", token.substring(0, 10) + "...");
+        
         const res = await fetch('http://localhost:8000/api/v1/videos/upload', {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${token}`,
           },
           body: formData,
         });
 
+        console.log("Phản hồi từ server:", res.status);
+        
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error("Nội dung lỗi:", errorText);
+          throw new Error(`Lỗi HTTP! Trạng thái: ${res.status}, Nội dung: ${errorText}`);
+        }
+
         const data = await res.json();
-        setCurrentVideoUrl(data.video.video_url);
+        console.log("Dữ liệu nhận được:", data);
+        
+        // Ưu tiên sử dụng file_path, nếu không có thì dùng video_url hoặc url
+        const videoSource = data.video.file_path || data.video.video_url || data.video.url;
+        console.log("Đường dẫn video:", videoSource);
+        
+        if (!videoSource) {
+          throw new Error("Không tìm thấy đường dẫn video trong dữ liệu trả về");
+        }
+        
+        setCurrentVideoUrl(videoSource);
         setVideoTitle(data.video.title);
-        setVideoDescription(data.video.description);
+        setVideoDescription(data.video.description || "");
+        setContent(null);
       } catch (error) {
         console.error('Upload thất bại:', error);
+        setError("Tải lên thất bại: " + error.message);
       } finally {
         setIsUploading(false);
       }
@@ -47,45 +78,92 @@ const Homepage = ({ content, setContent }) => {
   };
 
   const handleInputURL = async () => {
-    const url = prompt('Nhập URL video:');
+    const url = prompt('Nhập URL video (có thể là YouTube):');
     if (!url) return;
-
+  
     try {
       setIsUploading(true);
+      setError("");
+      console.log("Đang tải video từ URL:", url);
+  
+      // Kiểm tra định dạng URL cơ bản
+      if (!/^https?:\/\/.+\..+/.test(url)) {
+        throw new Error("URL không hợp lệ");
+      }
+  
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error("Không tìm thấy token, vui lòng đăng nhập lại");
+      }
+  
+      const requestData = {
+        url,
+        title: 'Video từ URL',
+        description: 'Video tải từ đường dẫn',
+        tags: ['url', 'video'],
+        status: 'public',
+      };
+  
       const res = await fetch('http://localhost:8000/api/v1/videos/url', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          url,
-          title: 'Video từ URL',
-          description: 'Video tải từ đường dẫn',
-          tags: ['url', 'video'],
-          status: 'public',
-        }),
+        body: JSON.stringify(requestData),
       });
-
+  
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Lỗi HTTP! Trạng thái: ${res.status}, Nội dung: ${errorText}`);
+      }
+  
       const data = await res.json();
-      setCurrentVideoUrl(data.video.video_url);
-      setVideoTitle(data.video.title);
-      setVideoDescription(data.video.description);
+  
+      const videoSource = data.video.url || data.video.video_url || data.video.file_path;
+      if (!videoSource) {
+        throw new Error("Không tìm thấy đường dẫn video trong dữ liệu trả về");
+      }
+  
+      setCurrentVideoUrl(videoSource);
+      setVideoTitle(data.video.title || "Video từ URL");
+      setVideoDescription(data.video.description || "");
+      setContent(null);
     } catch (error) {
       console.error('Tải từ URL thất bại:', error);
+      setError("Tải từ URL thất bại: " + error.message);
     } finally {
       setIsUploading(false);
     }
   };
+  
 
   const handleUploadVideo = async () => {
-    try {
+          try {
+      setIsUploading(true);
+      setError("");
+      console.log("Đang lấy danh sách video...");
+      
+      // Kiểm tra token trước khi gửi request
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error("Không tìm thấy token, vui lòng đăng nhập lại");
+      }
+      
       const res = await fetch('http://localhost:8000/api/v1/videos/', {
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${token}`,
         },
       });
+
+      console.log("Phản hồi từ server:", res.status);
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Nội dung lỗi:", errorText);
+        throw new Error(`Lỗi HTTP! Trạng thái: ${res.status}, Nội dung: ${errorText}`);
+      }
 
       const data = await res.json();
       if (data.length > 0) {
@@ -96,15 +174,17 @@ const Homepage = ({ content, setContent }) => {
                 key={video.id} 
                 className="video-item" 
                 onClick={() => {
-                  setCurrentVideoUrl(video.video_url);
+                  // Ưu tiên sử dụng file_path, nếu không có thì dùng url hoặc video_url
+                  const videoSource = video.file_path || video.url || video.video_url;
+                  setCurrentVideoUrl(videoSource);
                   setVideoTitle(video.title);
-                  setVideoDescription(video.description);
+                  setVideoDescription(video.description || "");
                   setContent(null);
                 }}
               >
                 <h3>{video.title}</h3>
-                <video width="200" src={video.video_url}></video>
-                <p>{video.description}</p>
+                <video width="200" src={video.file_path || video.url || video.video_url}></video>
+                <p>{video.description || ""}</p>
               </div>
             ))}
           </div>
@@ -114,6 +194,9 @@ const Homepage = ({ content, setContent }) => {
       }
     } catch (error) {
       console.error('Lấy danh sách video thất bại:', error);
+      setError("Lấy danh sách video thất bại: " + error.message);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -133,6 +216,11 @@ const Homepage = ({ content, setContent }) => {
       <div className="main-content__search">
         <input type="text" placeholder="Search" />
       </div>
+      {error && (
+        <div className="error-message">
+          {error}
+        </div>
+      )}
       <div className="main-content__display">
         {isUploading ? (
           <div className="loading">
@@ -142,7 +230,7 @@ const Homepage = ({ content, setContent }) => {
         ) : (
           content || (
             <div>
-              <video controls width="400">
+              <video controls width="400" key={currentVideoUrl}>
                 <source src={currentVideoUrl} type="video/mp4" />
                 Trình duyệt của bạn không hỗ trợ video.
               </video>

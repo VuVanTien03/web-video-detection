@@ -134,3 +134,186 @@ Traceback (most recent call last):
               ^^^^^^^^^^^^^^^^^
 AttributeError: module 'bcrypt' has no attribute '__about__'
 >>>>>>> 0947c73 (30/4)
+2025-04-30 19:17:24,289 - app.main - INFO - Starting up the application
+2025-04-30 19:18:00,045 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\code\python\DataMining\.venv_311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-04-30 20:47:40,311 - app.main - INFO - Shutting down the application
+2025-04-30 20:47:44,293 - app.main - INFO - Starting up the application
+2025-04-30 20:47:58,220 - app.main - INFO - Shutting down the application
+2025-04-30 20:49:58,145 - app.main - INFO - Starting up the application
+2025-04-30 20:50:40,223 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\code\python\DataMining\.venv_311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-04-30 21:23:29,004 - app.main - INFO - Shutting down the application
+2025-04-30 21:23:31,262 - app.main - INFO - Starting up the application
+2025-04-30 21:54:34,421 - app.main - INFO - Shutting down the application
+2025-05-01 13:11:31,467 - app.main - INFO - Starting up the application
+2025-05-01 13:12:01,122 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\code\python\DataMining\.venv_311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-05-01 13:20:04,361 - app.main - INFO - Shutting down the application
+2025-05-01 13:28:43,595 - app.main - INFO - Starting up the application
+2025-05-01 13:29:11,381 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\code\python\DataMining\.venv_311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-05-01 13:30:01,022 - app.main - INFO - Shutting down the application
+2025-05-01 13:30:09,128 - app.main - INFO - Starting up the application
+2025-05-01 13:36:49,904 - app.main - INFO - Shutting down the application
+2025-05-01 13:36:58,268 - app.main - INFO - Starting up the application
+2025-05-01 13:41:00,451 - app.main - INFO - Shutting down the application
+2025-05-01 13:42:05,653 - app.main - INFO - Starting up the application
+2025-05-01 13:44:10,977 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\code\python\DataMining\.venv_311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-05-01 13:45:34,357 - app.main - INFO - Shutting down the application
+2025-05-01 13:45:59,884 - app.main - INFO - Starting up the application
+2025-05-01 13:46:27,482 - app.main - INFO - Shutting down the application
+2025-05-01 13:46:35,539 - app.main - INFO - Starting up the application
+2025-05-01 13:51:13,580 - app.main - INFO - Shutting down the application
+2025-05-01 13:51:21,934 - app.main - INFO - Starting up the application
+2025-05-01 13:54:17,892 - app.main - INFO - Shutting down the application
+2025-05-01 13:54:26,722 - app.main - INFO - Starting up the application
+2025-05-01 13:56:55,740 - app.main - INFO - Shutting down the application
+2025-05-01 13:57:03,901 - app.main - INFO - Starting up the application
+2025-05-01 14:01:38,609 - app.main - INFO - Shutting down the application
+2025-05-01 14:01:48,584 - app.main - INFO - Starting up the application
+2025-05-01 14:01:48,586 - app.main - INFO - Shutting down the application
+2025-05-01 14:01:56,144 - app.main - INFO - Starting up the application
+2025-05-01 14:02:33,868 - app.main - INFO - Shutting down the application
+2025-05-01 14:02:42,179 - app.main - INFO - Starting up the application
+2025-05-01 14:06:08,030 - app.main - INFO - Shutting down the application
+2025-05-01 14:07:22,555 - app.main - INFO - Starting up the application
+2025-05-01 14:10:57,545 - app.main - INFO - Starting up the application
+2025-05-01 14:13:09,540 - app.main - INFO - Shutting down the application
+2025-05-01 14:13:45,202 - app.main - INFO - Starting up the application
+2025-05-01 14:28:29,782 - app.main - INFO - Starting up the application
+2025-05-01 14:28:54,099 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\code\python\DataMining\.venv_311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-05-01 14:31:19,108 - app.main - INFO - Shutting down the application
+2025-05-01 14:31:30,328 - app.main - INFO - Starting up the application
+2025-05-01 14:32:21,888 - app.main - INFO - Shutting down the application
+2025-05-01 14:32:30,263 - app.main - INFO - Starting up the application
+2025-05-01 14:37:42,825 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\code\python\DataMining\.venv_311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-05-01 14:41:48,496 - app.main - INFO - Shutting down the application
+2025-05-01 14:42:05,223 - app.main - INFO - Starting up the application
+2025-05-01 14:42:48,585 - app.main - INFO - Shutting down the application
+2025-05-01 14:45:54,796 - app.main - INFO - Starting up the application
+2025-05-01 14:46:08,145 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\code\python\DataMining\.venv_311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-05-01 14:52:27,789 - app.main - INFO - Shutting down the application
+2025-05-01 14:52:45,096 - app.main - INFO - Starting up the application
+2025-05-01 14:53:08,143 - app.main - INFO - Shutting down the application
+2025-05-01 14:53:16,997 - app.main - INFO - Starting up the application
+2025-05-01 15:04:54,610 - app.main - INFO - Shutting down the application
+2025-05-01 15:16:05,723 - app.main - INFO - Starting up the application
+2025-05-01 15:18:35,554 - app.main - INFO - Shutting down the application
+2025-05-01 15:18:45,301 - app.main - INFO - Starting up the application
+2025-05-01 15:18:57,996 - app.main - INFO - Shutting down the application
+2025-05-01 15:19:05,622 - app.main - INFO - Starting up the application
+2025-05-01 15:21:21,147 - app.main - INFO - Shutting down the application
+2025-05-06 10:32:48,138 - app.main - INFO - Starting up the application
+2025-05-06 10:33:29,262 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\code\python\DataMining\.venv_311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-05-06 10:48:31,410 - app.main - INFO - Starting up the application
+2025-05-06 23:12:10,305 - app.main - INFO - Starting up the application
+2025-05-06 23:12:37,923 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\code\python\DataMining\.venv_311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-05-06 23:17:01,735 - app.main - INFO - Starting up the application
+2025-05-06 23:17:49,829 - app.main - INFO - Shutting down the application
+2025-05-06 23:24:28,596 - app.main - INFO - Starting up the application
+2025-05-06 23:24:28,891 - app.main - INFO - Starting up the application
+2025-05-06 23:26:11,077 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\code\python\DataMining\.venv_311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-05-06 23:28:02,708 - app.main - INFO - Shutting down the application
+2025-05-06 23:28:52,912 - app.main - INFO - Starting up the application
+2025-05-06 23:33:04,282 - app.main - INFO - Starting up the application
+2025-05-06 23:34:13,668 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\code\python\DataMining\.venv_311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-05-06 23:38:18,606 - app.main - INFO - Starting up the application
+2025-05-06 23:38:53,567 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\code\python\DataMining\.venv_311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-05-06 23:46:20,677 - app.main - INFO - Shutting down the application
+2025-05-06 23:46:34,365 - app.main - INFO - Starting up the application
+2025-05-06 23:52:07,585 - app.main - INFO - Starting up the application
+2025-05-06 23:52:42,305 - app.main - INFO - Starting up the application
+2025-05-08 12:10:06,432 - app.main - INFO - Starting up the application
+2025-05-08 12:10:15,147 - app.main - INFO - Shutting down the application
+2025-05-08 12:11:58,565 - app.main - INFO - Starting up the application
+2025-05-08 12:13:14,827 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\code\python\DataMining\.venv_311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-05-08 12:18:22,162 - app.main - INFO - Starting up the application
+2025-05-08 12:22:18,990 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\code\python\DataMining\.venv_311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-05-08 12:33:06,492 - app.main - INFO - Starting up the application
+2025-05-08 12:42:34,746 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\code\python\DataMining\.venv_311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-05-08 12:44:19,196 - app.main - INFO - Starting up the application
+2025-05-08 13:01:09,167 - app.main - INFO - Starting up the application
+2025-05-08 13:02:22,134 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\code\python\DataMining\.venv_311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-05-08 13:16:09,280 - app.main - INFO - Shutting down the application
