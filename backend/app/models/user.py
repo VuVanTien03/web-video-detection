@@ -1,14 +1,18 @@
 # File: app/models/user.py
 from datetime import datetime
-from typing import Optional
-from pydantic import BaseModel, Field
+from typing import Optional, Any, ClassVar
+from pydantic import BaseModel, Field, GetJsonSchemaHandler
+from pydantic_core import core_schema
 from bson import ObjectId
 
 class PyObjectId(ObjectId):
     @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-        
+    def __get_pydantic_core_schema__(cls, _source_type: Any, _handler: Any) -> core_schema.CoreSchema:
+        return core_schema.chain_schema([
+            core_schema.str_schema(),
+            core_schema.no_info_plain_validator_function(cls.validate),
+        ])
+    
     @classmethod
     def validate(cls, v):
         if not ObjectId.is_valid(v):
@@ -16,8 +20,8 @@ class PyObjectId(ObjectId):
         return ObjectId(v)
     
     @classmethod
-    def __modify_schema__(cls, field_schema):
-        field_schema.update(type="string")
+    def __get_pydantic_json_schema__(cls, _core_schema, handler: GetJsonSchemaHandler):
+        return {"type": "string"}
 
 class UserModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
@@ -30,11 +34,11 @@ class UserModel(BaseModel):
     role: str = "user"  # 'user', 'admin'
     status: str = "active"  # 'active', 'suspended', 'deleted'
     
-    class Config:
-        allow_population_by_field_name = True
-        arbitrary_types_allowed = True
-        json_encoders = {ObjectId: str}
-        schema_extra = {
+    model_config = {
+        "populate_by_name": True,
+        "arbitrary_types_allowed": True,
+        "json_encoders": {ObjectId: str},
+        "json_schema_extra": {
             "example": {
                 "username": "johndoe",
                 "email": "john@example.com",
@@ -43,3 +47,4 @@ class UserModel(BaseModel):
                 "status": "active",
             }
         }
+    }

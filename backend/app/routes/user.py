@@ -4,7 +4,7 @@ from app.schemas.user import UserCreate, UserUpdate, UserResponse, UserInDB
 from app.utils.security import get_password_hash, get_current_active_user
 from app.database import user_collection
 from datetime import datetime
-from bson import ObjectId
+# from bson import ObjectId
 from typing import List
 
 router = APIRouter(prefix="/users", tags=["users"])

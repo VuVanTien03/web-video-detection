@@ -1,4 +1,4 @@
-# File: app/routes/video.py
+
 # File: app/routes/video.py
 from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, UploadFile, status, BackgroundTasks, Path, Query
 from fastapi.responses import JSONResponse
@@ -11,18 +11,19 @@ from app.schemas.processed_video import ProcessedVideoResponse
 from app.utils.security import get_current_active_user
 from app.database import video_collection, processed_video_collection
 from app.services.video_processor import process_video
-from app.services.video_service import get_video_by_id, get_processed_video_by_video_id, delete_video
+from app.services.video_service import get_video_by_id, get_processed_video_by_video_id, delete_video , track_video_service
 from app.utils.validators import validate_video_file_extension, validate_video_size
 from datetime import datetime
-from bson import ObjectId
+# from bson import ObjectId
 import shutil
 from app.config import settings
 from app.schemas.upload_video_response import UploadVideoResponse
+from fastapi.responses import StreamingResponse
 
 
 router = APIRouter(prefix="/videos", tags=["videos"])
 
-@router.post("/upload", response_model=VideoResponse)
+@router.post("/upload") #response_model=VideoResponse)
 async def upload_video(
     background_tasks: BackgroundTasks,
     title: str = Form(...),
@@ -127,8 +128,82 @@ async def create_url_video(
         }
     }
 
-# Các endpoint khác giữ nguyên như cũ
+# Thêm code này vào file routers/videos.py hoặc tạo file mới nếu chưa có
 
+# from fastapi import APIRouter, HTTPException, Depends, Path
+# from fastapi.responses import FileResponse
+# import os
+# from typing import List
+# from app.config import settings
+from app.utils.security import get_current_user
+from app.models.user import UserModel
+
+
+@router.get("/stream/{user_id}/{filename}")
+async def stream_video(
+    user_id: str = Path(...),
+    filename: str = Path(...),
+    current_user: UserModel = Depends(get_current_user)
+):
+    """
+    Stream một video đã xử lý
+    """
+    # Kiểm tra quyền truy cập (tùy chọn - có thể bỏ nếu không cần kiểm tra quyền)
+    if str(current_user.id) != user_id and not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Không có quyền truy cập video này")
+    
+    # Tạo đường dẫn đến file video
+    processed_dir = os.path.join(settings.PROCESSED_DIR, f"user_{user_id}")
+    file_path = os.path.join(processed_dir, filename)
+    
+    # Kiểm tra xem file có tồn tại không
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Video không tồn tại")
+    
+    # Trả về file video để stream
+    return FileResponse(
+        path=file_path,
+        media_type="video/mp4",
+        filename=filename
+    )
+
+@router.get("/{video_id}/processed")
+async def get_processed_video(
+    video_id: str = Path(...),
+    current_user: UserModel = Depends(get_current_user)
+):
+    """
+    Lấy thông tin về video đã xử lý
+    """
+    # Tìm thông tin video đã xử lý trong database
+    processed_video = await processed_video_collection.find_one({
+        "video_id": ObjectId(video_id),
+        "status": "completed"
+    })
+    
+    if not processed_video:
+        # Kiểm tra xem video có đang xử lý không
+        processing_video = await processed_video_collection.find_one({
+            "video_id": ObjectId(video_id),
+            "status": "processing"
+        })
+        
+        if processing_video:
+            raise HTTPException(
+                status_code=202, 
+                detail="Video đang được xử lý"
+            )
+        else:
+            raise HTTPException(
+                status_code=404, 
+                detail="Không tìm thấy thông tin video đã xử lý"
+            )
+    
+    # Chuyển đổi ObjectId sang chuỗi để có thể serialize thành JSON
+    processed_video["_id"] = str(processed_video["_id"])
+    processed_video["video_id"] = str(processed_video["video_id"])
+    
+    return processed_video
 
 @router.get("/", response_model=List[VideoResponse])
 async def get_videos(
@@ -541,3 +616,16 @@ async def search_videos(
         })
     
     return videos
+
+
+# Định nghĩa API route track_video
+@router.get("/track_video/{video_id}")
+async def track_video(video_id: str):
+    """
+    API stream video đã xử lý YOLO.
+    """
+    try:
+        return await track_video_service(video_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
