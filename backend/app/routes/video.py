@@ -1,5 +1,7 @@
 # File: app/routes/video.py
 # File: app/routes/video.py
+from unittest import result
+
 from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, UploadFile, status, BackgroundTasks, Path, Query
 from fastapi.responses import JSONResponse
 from typing import List, Optional
@@ -20,6 +22,7 @@ from app.config import settings
 from app.schemas.upload_video_response import UploadVideoResponse
 from fastapi.responses import StreamingResponse
 
+from backend.app.services.video_service import get_detection
 
 router = APIRouter(prefix="/videos", tags=["videos"])
 
@@ -547,11 +550,19 @@ async def search_videos(
 # Định nghĩa API route track_video
 @router.get("/track_video/{video_id}")
 async def track_video(video_id: str):
-    """
-    API stream video đã xử lý YOLO.
-    """
     try:
-        return await track_video_service(video_id)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
+        result = await track_video_service(video_id)
+        return result
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi: {str(e)}")
+@router.get("time_detection/{video_id}")
+async def time_detection(video_id: str):
+    try  :
+        resul = await get_detection()
+        return result
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500 , detail=f"lỗi:{str(e)}")

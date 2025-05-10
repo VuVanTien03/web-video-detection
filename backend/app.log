@@ -317,3 +317,107 @@ Traceback (most recent call last):
               ^^^^^^^^^^^^^^^^^
 AttributeError: module 'bcrypt' has no attribute '__about__'
 2025-05-08 13:16:09,280 - app.main - INFO - Shutting down the application
+2025-05-08 13:41:00,612 - app.main - INFO - Starting up the application
+2025-05-08 13:41:31,252 - app.main - INFO - Shutting down the application
+2025-05-08 13:41:40,782 - app.main - INFO - Starting up the application
+2025-05-08 13:43:58,292 - app.main - INFO - Shutting down the application
+2025-05-08 13:44:12,721 - app.main - INFO - Starting up the application
+2025-05-08 13:46:36,168 - app.main - INFO - Shutting down the application
+2025-05-08 13:46:48,426 - app.main - INFO - Starting up the application
+2025-05-08 13:55:48,372 - app.main - INFO - Shutting down the application
+2025-05-08 16:32:14,636 - app.main - INFO - Starting up the application
+2025-05-08 16:34:21,215 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\code\python\DataMining\.venv_311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-05-08 16:49:33,731 - app.main - INFO - Starting up the application
+2025-05-08 16:51:03,140 - app.main - INFO - Starting up the application
+2025-05-08 16:57:58,904 - app.main - INFO - Shutting down the application
+2025-05-08 16:58:12,599 - app.main - INFO - Starting up the application
+2025-05-08 17:00:02,296 - app.main - INFO - Starting up the application
+2025-05-08 17:01:54,097 - app.main - INFO - Starting up the application
+2025-05-08 18:59:41,243 - app.main - INFO - Starting up the application
+2025-05-08 20:46:51,975 - app.main - INFO - Starting up the application
+2025-05-09 12:24:47,377 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "D:\code\python\DataMining\.venv_311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-05-09 14:41:52,773 - app.main - INFO - Starting up the application
+2025-05-09 14:49:03,486 - app.main - INFO - Shutting down the application
+2025-05-09 15:00:07,902 - app.main - INFO - Starting up the application
+2025-05-09 15:01:30,760 - app.main - INFO - Shutting down the application
+2025-05-09 15:01:43,414 - app.main - INFO - Starting up the application
+2025-05-09 15:02:44,233 - app.main - INFO - Shutting down the application
+2025-05-09 15:02:55,121 - app.main - INFO - Starting up the application
+2025-05-09 15:05:06,076 - app.main - INFO - Shutting down the application
+2025-05-09 15:05:14,316 - app.main - INFO - Starting up the application
+2025-05-09 15:08:09,958 - app.main - INFO - Shutting down the application
+2025-05-09 15:08:18,645 - app.main - INFO - Starting up the application
+2025-05-09 15:22:19,904 - app.main - INFO - Shutting down the application
+2025-05-09 15:22:31,920 - app.main - INFO - Starting up the application
+2025-05-09 15:23:22,975 - app.main - INFO - Shutting down the application
+2025-05-09 15:23:32,195 - app.main - INFO - Starting up the application
+2025-05-09 15:23:32,196 - app.main - INFO - Shutting down the application
+2025-05-09 15:23:39,726 - app.main - INFO - Starting up the application
+2025-05-09 15:25:41,916 - app.main - INFO - Shutting down the application
+2025-05-09 15:25:52,419 - app.main - INFO - Starting up the application
+2025-05-09 15:27:12,800 - app.main - INFO - Shutting down the application
+2025-05-09 15:27:21,842 - app.main - INFO - Starting up the application
+2025-05-09 15:28:08,389 - app.main - INFO - Shutting down the application
+2025-05-09 15:28:16,802 - app.main - INFO - Starting up the application
+2025-05-09 15:29:04,597 - app.main - INFO - Shutting down the application
+2025-05-09 15:29:15,323 - app.main - INFO - Starting up the application
+2025-05-09 15:32:49,208 - app.main - INFO - Shutting down the application
+2025-05-09 15:32:57,491 - app.main - INFO - Starting up the application
+2025-05-09 15:33:29,848 - app.main - INFO - Shutting down the application
+2025-05-09 15:33:37,882 - app.main - INFO - Starting up the application
+2025-05-09 15:34:28,385 - app.main - INFO - Shutting down the application
+2025-05-09 15:34:39,504 - app.main - INFO - Starting up the application
+2025-05-09 15:39:52,107 - app.main - INFO - Shutting down the application
+2025-05-09 15:40:02,634 - app.main - INFO - Starting up the application
+2025-05-09 15:40:30,468 - app.main - INFO - Shutting down the application
+2025-05-09 15:40:38,389 - app.main - INFO - Starting up the application
+2025-05-09 15:43:08,922 - app.main - INFO - Shutting down the application
+2025-05-09 15:43:21,172 - app.main - INFO - Starting up the application
+2025-05-09 15:51:59,349 - app.main - INFO - Shutting down the application
+2025-05-09 15:52:13,544 - app.main - INFO - Starting up the application
+2025-05-09 15:52:17,608 - app.main - INFO - Shutting down the application
+2025-05-09 15:52:25,068 - app.main - INFO - Starting up the application
+2025-05-09 15:54:30,026 - app.main - INFO - Shutting down the application
+2025-05-09 15:54:41,704 - app.main - INFO - Starting up the application
+2025-05-09 16:00:31,393 - app.main - INFO - Shutting down the application
+2025-05-09 16:00:42,931 - app.main - INFO - Starting up the application
+2025-05-09 16:00:42,932 - app.main - INFO - Shutting down the application
+2025-05-09 16:00:51,261 - app.main - INFO - Starting up the application
+2025-05-09 16:01:55,294 - app.main - INFO - Shutting down the application
+2025-05-09 16:02:13,329 - app.main - INFO - Starting up the application
+2025-05-09 16:04:00,825 - app.main - INFO - Shutting down the application
+2025-05-09 16:04:39,364 - app.main - INFO - Starting up the application
+2025-05-09 16:07:41,319 - app.main - INFO - Starting up the application
+2025-05-09 16:08:40,902 - app.main - INFO - Shutting down the application
+2025-05-09 16:08:53,867 - app.main - INFO - Starting up the application
+2025-05-09 16:10:56,131 - app.main - INFO - Starting up the application
+2025-05-09 16:54:12,524 - app.main - INFO - Shutting down the application
+2025-05-09 16:54:26,220 - app.main - INFO - Starting up the application
+2025-05-09 17:03:34,771 - app.main - INFO - Shutting down the application
+2025-05-09 17:03:47,294 - app.main - INFO - Starting up the application
+2025-05-09 17:04:08,109 - app.main - INFO - Shutting down the application
+2025-05-09 17:04:18,350 - app.main - INFO - Starting up the application
+2025-05-09 17:04:52,800 - app.main - INFO - Shutting down the application
+2025-05-09 17:05:05,853 - app.main - INFO - Starting up the application
+2025-05-09 17:05:19,862 - app.main - INFO - Shutting down the application
+2025-05-09 17:05:31,457 - app.main - INFO - Starting up the application
+2025-05-09 17:05:31,457 - app.main - INFO - Shutting down the application
+2025-05-09 17:05:41,262 - app.main - INFO - Starting up the application
+2025-05-09 17:05:41,263 - app.main - INFO - Shutting down the application
+2025-05-09 17:05:51,144 - app.main - INFO - Starting up the application
+2025-05-09 17:05:51,896 - app.main - INFO - Shutting down the application
+2025-05-09 17:06:00,261 - app.main - INFO - Starting up the application
+2025-05-09 17:12:18,368 - app.main - INFO - Shutting down the application
+2025-05-09 17:12:30,340 - app.main - INFO - Starting up the application
+2025-05-09 17:15:53,884 - app.main - INFO - Shutting down the application
+2025-05-09 17:16:05,055 - app.main - INFO - Starting up the application
