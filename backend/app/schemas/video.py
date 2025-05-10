@@ -35,7 +35,7 @@ class VideoInDB(BaseModel):
     status: str
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id": "60d21b4967d0d8992e610c85",
                 "user_id": "60d21b4967d0d8992e610c85",

@@ -23,7 +23,7 @@ class VideoModel(BaseModel):
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "title": "My First Video",
                 "description": "A video about programming",

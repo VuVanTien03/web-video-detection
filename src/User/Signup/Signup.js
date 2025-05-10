@@ -4,8 +4,10 @@ import './Signup.scss';
 
 const Signup = () => {
   const [username, setUsername] = useState('');
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -18,11 +20,10 @@ const Signup = () => {
     try {
       const response = await fetch('http://localhost:8000/api/v1/auth/signup', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username,
+          full_name: fullName,
           email,
           password,
         }),
@@ -31,10 +32,14 @@ const Signup = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.detail || 'Đăng ký thất bại');
+        const message = typeof data.detail === 'string'
+          ? data.detail
+          : Array.isArray(data.detail)
+            ? data.detail.map(item => item.msg).join(', ')
+            : JSON.stringify(data.detail);
+        throw new Error(message || 'Đăng ký thất bại');
       }
 
-      // Đăng ký thành công, chuyển hướng đến trang đăng nhập
       navigate('/login');
     } catch (err) {
       setError(err.message);
@@ -44,7 +49,6 @@ const Signup = () => {
   };
 
   const handleGoogleSignup = () => {
-    // Xử lý đăng ký bằng Google (nếu có)
     alert('Chức năng đăng ký bằng Google chưa được triển khai');
   };
 
@@ -74,6 +78,16 @@ const Signup = () => {
             />
           </div>
           <div className="form-group">
+            <label>Full Name</label>
+            <input 
+              type="text" 
+              placeholder="John Doe" 
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
             <label>Email</label>
             <input 
               type="email" 
@@ -83,15 +97,24 @@ const Signup = () => {
               required
             />
           </div>
-          <div className="form-group">
+          <div className="form-group password-group">
             <label>Password</label>
-            <input 
-              type="password" 
-              placeholder="********" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div className="password-wrapper">
+              <input 
+                type={showPassword ? 'text' : 'password'}
+                placeholder="********"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowPassword(prev => !prev)}
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
           </div>
           <button type="submit" disabled={loading}>
             {loading ? 'Đang tạo tài khoản...' : 'Create Account'}

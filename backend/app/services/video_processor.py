@@ -1,4 +1,3 @@
-# File: app/services/video_processor.py
 import os
 import time
 import subprocess
@@ -8,11 +7,15 @@ from bson import ObjectId
 from app.database import video_collection, processed_video_collection
 from app.config import settings
 import json
+import youtube_dl  # Đảm bảo bạn đã cài youtube-dl
+from pymongo import UpdateOne
+
 
 async def process_video(video_id: str):
     """
     Xử lý video trong background
     """
+    processed_video_id = None
     try:
         # Cập nhật trạng thái video sang 'processing'
         await video_collection.update_one(
@@ -25,6 +28,19 @@ async def process_video(video_id: str):
         if not video:
             raise Exception(f"Video with ID {video_id} not found")
         
+        # Kiểm tra nếu video có trường url
+        video_title = "Unknown Title"
+        if "url" in video and video["url"]:
+            # Tải video từ YouTube và lấy title
+            video_url = video["url"]
+            video_title = await get_video_title_from_youtube(video_url)
+            
+            # Cập nhật tiêu đề vào MongoDB
+            await video_collection.update_one(
+                {"_id": ObjectId(video_id)},
+                {"$set": {"title": video_title}}
+            )
+        
         # Tạo bản ghi cho video đã xử lý
         processing_record = {
             "video_id": ObjectId(video_id),
@@ -33,8 +49,8 @@ async def process_video(video_id: str):
             "status": "processing"
         }
         
-        processed_video_id = await processed_video_collection.insert_one(processing_record)
-        processed_video_id = processed_video_id.inserted_id
+        result = await processed_video_collection.insert_one(processing_record)
+        processed_video_id = result.inserted_id
         
         # Tạo thư mục cho video đã xử lý
         user_id = str(video["user_id"])
@@ -45,12 +61,12 @@ async def process_video(video_id: str):
         output_path = os.path.join(processed_dir, output_filename)
         
         # Xử lý video dựa trên loại nguồn
-        if video["source_type"] == "local":
+        if video.get("source_type") == "local":
             input_path = video["file_path"]
             # Xử lý video đã tải lên
             video_info = await get_video_info(input_path)
             await process_local_video(input_path, output_path)
-        else:  # source_type == "url"
+        elif "url" in video and video["url"]:  # source_type == "url"
             url = video["url"]
             # Xử lý video từ URL
             temp_path = os.path.join(processed_dir, f"temp_{video_id}.mp4")
@@ -60,6 +76,8 @@ async def process_video(video_id: str):
             # Xóa file tạm
             if os.path.exists(temp_path):
                 os.remove(temp_path)
+        else:
+            raise Exception("Neither file_path nor URL provided for video processing")
         
         # Lấy thông tin video đã xử lý
         processed_video_info = await get_video_info(output_path)
@@ -98,18 +116,37 @@ async def process_video(video_id: str):
         # Cập nhật trạng thái video sang 'failed'
         await video_collection.update_one(
             {"_id": ObjectId(video_id)},
-            {"$set": {"status": "failed"}}
+            {"$set": {"status": "failed", "error_message": error_message}}
         )
         
-        # Cập nhật thông tin video đã xử lý
-        await processed_video_collection.update_one(
-            {"_id": processed_video_id},
-            {"$set": {
-                "status": "failed",
-                "error_message": error_message,
-                "processing_end_time": datetime.now()
-            }}
-        )
+        # Chỉ cập nhật bản ghi processed_video nếu đã được tạo
+        if processed_video_id:
+            await processed_video_collection.update_one(
+                {"_id": processed_video_id},
+                {"$set": {
+                    "status": "failed",
+                    "error_message": error_message,
+                    "processing_end_time": datetime.now()
+                }}
+            )
+
+
+async def get_video_title_from_youtube(url: str) -> str:
+    """
+    Lấy tiêu đề video từ YouTube
+    """
+    try:
+        ydl_opts = {
+            'quiet': True,
+            'extract_flat': True,
+        }
+        
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            info_dict = ydl.extract_info(url, download=False)
+            return info_dict.get('title', 'Unknown Title')
+    except Exception as e:
+        return f"Error retrieving title: {str(e)}"
+
 
 async def get_video_info(file_path: str) -> dict:
     """
@@ -179,6 +216,7 @@ async def get_video_info(file_path: str) -> dict:
             "duration": 0
         }
 
+
 async def process_local_video(input_path: str, output_path: str) -> bool:
     """
     Xử lý video sử dụng ffmpeg
@@ -213,6 +251,7 @@ async def process_local_video(input_path: str, output_path: str) -> bool:
     
     except Exception as e:
         raise Exception(f"Error processing video: {str(e)}")
+
 
 async def download_video(url: str, output_path: str) -> bool:
     """
