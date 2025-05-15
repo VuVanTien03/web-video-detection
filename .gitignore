@@ -45,3 +45,4 @@ backend/uploads/
 
 # .env file for sensitive environment variables
 .env
+backend/venv

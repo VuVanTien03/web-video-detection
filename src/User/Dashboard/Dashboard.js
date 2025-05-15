@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './Dashboard.scss';
 import Header from '../Header/Header';
 import Sidebar from '../Sidebar/Sidebar';
-import Chatbot from '../Chatbot/Chatbot';
+// import Chatbot from '../Chatbot/Chatbot';
 import Homepage from '../Homepage/Homepage';
 import History from '../History/History';
 
@@ -36,7 +36,6 @@ const Dashboard = () => {
           />
         )}
       </main>
-      <Chatbot />
     </div>
   );
 };
