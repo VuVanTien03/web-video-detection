@@ -1,5 +1,7 @@
 
 # File: app/routes/video.py
+from unittest import result
+
 from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, UploadFile, status, BackgroundTasks, Path, Query
 from fastapi.responses import JSONResponse, StreamingResponse, FileResponse
 from typing import List, Optional
@@ -20,6 +22,7 @@ from app.config import settings
 from app.schemas.upload_video_response import UploadVideoResponse
 from fastapi.responses import StreamingResponse
 
+from backend.app.services.video_service import get_detection
 
 router = APIRouter(prefix="/videos", tags=["videos"])
 
@@ -630,17 +633,34 @@ async def search_videos(
 # Định nghĩa API route track_video
 @router.get("/track_video/{video_id}")
 async def track_video(video_id: str):
-    """
-    API stream video đã xử lý YOLO.
-    """
     try:
-        return await track_video_service(video_id)
+        result = await track_video_service(video_id)
+        return result
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi: {str(e)}")
 
+
+# API phục vụ video tĩnh từ thư mục upload
 @router.get("/serve/{path:path}")
 async def serve_video(path: str):
     full_path = os.path.abspath(os.path.join(settings.UPLOAD_DIR, path))  # ✅ CHUẨN
     if not os.path.exists(full_path):
         raise HTTPException(status_code=404, detail="File not found")
     return FileResponse(path=full_path, media_type="video/mp4", filename=os.path.basename(full_path))
+
+
+# API lấy thời gian phát hiện video
+@router.get("/time_detection/{video_id}")
+async def time_detection(video_id: str):
+    try:
+        result = await get_detection()
+        return result
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi: {str(e)}")
+
