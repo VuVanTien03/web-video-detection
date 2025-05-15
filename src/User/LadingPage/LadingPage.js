@@ -10,13 +10,6 @@ const LadingPage = () => {
   const fileInputRef = useRef(null);
 
   const handleFileChange = (event) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert('Vui lòng đăng nhập trước khi tải video lên.');
-      window.location.href = '/login';
-      return;
-    }
-
     const file = event.target.files[0];
     if (file && ['video/mp4', 'video/webm', 'video/ogg'].includes(file.type)) {
       setSelectedFile(file);
@@ -30,14 +23,6 @@ const LadingPage = () => {
   const handleDrop = (event) => {
     event.preventDefault();
     setIsDragOver(false);
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert('Vui lòng đăng nhập trước khi tải video lên.');
-      window.location.href = '/login';
-      return;
-    }
-
     const file = event.dataTransfer.files[0];
     if (file && ['video/mp4', 'video/webm', 'video/ogg'].includes(file.type)) {
       setSelectedFile(file);
@@ -49,20 +34,12 @@ const LadingPage = () => {
   };
 
   const handleUrlImport = () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert('Vui lòng đăng nhập trước khi nhập URL.');
-      window.location.href = '/login';
-      return;
-    }
-
     if (!videoUrl.trim()) {
       alert('Vui lòng nhập URL video hợp lệ.');
       return;
     }
-
     console.log('URL nhập vào:', videoUrl);
-    // Gửi URL đến backend hoặc xử lý tiếp theo
+    // Bạn có thể gọi API hoặc chuyển URL này sang backend xử lý tại đây.
   };
 
   return (

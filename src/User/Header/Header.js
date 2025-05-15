@@ -4,13 +4,9 @@ import './Header.scss';
 
 const Header = ({ resetContent }) => {
   const handleLogoClick = () => {
-    // Gọi resetContent nếu có
     if (resetContent) {
-      resetContent();
+      resetContent(); // Gọi resetContent khi logo được bấm
     }
-    
-    // Refresh lại trang web
-    window.location.reload();
   };
   const [showUserInfo, setShowUserInfo] = useState(false);
   const [userInfo, setUserInfo] = useState(null);

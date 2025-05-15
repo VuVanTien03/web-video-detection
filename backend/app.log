@@ -446,3 +446,4 @@ Traceback (most recent call last):
     version = _bcrypt.__about__.__version__
               ^^^^^^^^^^^^^^^^^
 AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-05-15 18:42:36,175 - app.main - INFO - Shutting down the application

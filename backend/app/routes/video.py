@@ -1,7 +1,9 @@
 
 # File: app/routes/video.py
+from unittest import result
+
 from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, UploadFile, status, BackgroundTasks, Path, Query
-from fastapi.responses import JSONResponse, StreamingResponse, FileResponse
+from fastapi.responses import JSONResponse
 from typing import List, Optional
 import os
 import aiofiles
@@ -20,10 +22,11 @@ from app.config import settings
 from app.schemas.upload_video_response import UploadVideoResponse
 from fastapi.responses import StreamingResponse
 
+from backend.app.services.video_service import get_detection
 
 router = APIRouter(prefix="/videos", tags=["videos"])
 
-@router.post("/upload")  # response_model=VideoResponse
+@router.post("/upload") #response_model=VideoResponse)
 async def upload_video(
     background_tasks: BackgroundTasks,
     title: str = Form(...),
@@ -37,15 +40,12 @@ async def upload_video(
             detail=f"File type not allowed. Allowed types: {', '.join(settings.ALLOWED_VIDEO_TYPES)}"
         )
 
-    # Tạo thư mục lưu video theo người dùng
     user_upload_dir = os.path.join(settings.UPLOAD_DIR, f"user_{str(current_user['_id'])}")
     os.makedirs(user_upload_dir, exist_ok=True)
 
-    # Tạo tên file duy nhất
     unique_filename = f"{uuid.uuid4().hex}_{file.filename}"
     file_path = os.path.join(user_upload_dir, unique_filename)
 
-    # Ghi nội dung file
     async with aiofiles.open(file_path, 'wb') as out_file:
         while content := await file.read(1024 * 1024):
             await out_file.write(content)
@@ -59,17 +59,12 @@ async def upload_video(
             detail=f"File size exceeds maximum allowed size ({settings.MAX_VIDEO_SIZE / (1024 * 1024)} MB)"
         )
 
-    # Tạo đường dẫn tương đối để public
-    relative_path = os.path.relpath(file_path, settings.UPLOAD_DIR).replace("\\", "/")
-    public_url = f"http://localhost:8000/api/v1/videos/serve/{relative_path}"
-
     new_video = {
         "user_id": current_user["_id"],
         "title": title,
         "description": description,
         "original_filename": file.filename,
         "file_path": file_path,
-        "video_url": public_url,
         "source_type": "local",
         "upload_date": datetime.now(),
         "size": file_size,
@@ -89,7 +84,7 @@ async def upload_video(
             "description": created_video.get("description"),
             "original_filename": created_video.get("original_filename"),
             "file_path": created_video.get("file_path"),
-            "video_url": created_video.get("video_url"),  # Đã đúng public URL
+            "video_url": created_video.get("url") or "",
             "source_type": created_video["source_type"],
             "upload_date": created_video["upload_date"],
             "duration": created_video.get("duration"),
@@ -120,22 +115,21 @@ async def create_url_video(
     created_video = await video_collection.find_one({"_id": video_id})
 
     return {
-        "id": str(created_video["_id"]),
-        "user_id": str(created_video["user_id"]),
-        "title": created_video["title"],
-        "description": created_video.get("description"),
-        "original_filename": created_video.get("original_filename"),
-        "file_path": created_video.get("file_path"),
-        "video_url": created_video.get("url") or "",
-        "source_type": created_video["source_type"],
-        "upload_date": created_video["upload_date"],
-        "duration": created_video.get("duration"),
-        "size": created_video.get("size"),
-        "status": created_video["status"]
+        "video": {
+            "id": str(created_video["_id"]),
+            "user_id": str(created_video["user_id"]),
+            "title": created_video["title"],
+            "description": created_video.get("description"),
+            "original_filename": created_video.get("original_filename"),
+            "file_path": created_video.get("file_path"),
+            "video_url": created_video.get("url") or "",
+            "source_type": created_video["source_type"],
+            "upload_date": created_video["upload_date"],
+            "duration": created_video.get("duration"),
+            "size": created_video.get("size"),
+            "status": created_video["status"]
+        }
     }
-
-
-
 
 # Thêm code này vào file routers/videos.py hoặc tạo file mới nếu chưa có
 
@@ -630,17 +624,19 @@ async def search_videos(
 # Định nghĩa API route track_video
 @router.get("/track_video/{video_id}")
 async def track_video(video_id: str):
-    """
-    API stream video đã xử lý YOLO.
-    """
     try:
-        return await track_video_service(video_id)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-@router.get("/serve/{path:path}")
-async def serve_video(path: str):
-    full_path = os.path.abspath(os.path.join(settings.UPLOAD_DIR, path))  # ✅ CHUẨN
-    if not os.path.exists(full_path):
-        raise HTTPException(status_code=404, detail="File not found")
-    return FileResponse(path=full_path, media_type="video/mp4", filename=os.path.basename(full_path))
+        result = await track_video_service(video_id)
+        return result
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi: {str(e)}")
+@router.get("time_detection/{video_id}")
+async def time_detection(video_id: str):
+    try  :
+        resul = await get_detection()
+        return result
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500 , detail=f"lỗi:{str(e)}")
