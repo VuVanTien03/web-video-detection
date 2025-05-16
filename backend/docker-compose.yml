@@ -1,0 +1,31 @@
+# File: docker-compose.yml
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app
+      - ./uploads:/app/uploads
+      - ./processed:/app/processed
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017
+      - DATABASE_NAME=video_processing_db
+      - UPLOAD_DIR=/app/uploads
+      - PROCESSED_DIR=/app/processed
+      - SECRET_KEY=your_secret_key_here
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
+
