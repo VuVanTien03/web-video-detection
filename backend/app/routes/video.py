@@ -626,21 +626,23 @@ async def search_videos(
     
     return videos
 
-
+from backend.app.services.video_service import get_detection
 # Định nghĩa API route track_video
 @router.get("/track_video/{video_id}")
 async def track_video(video_id: str):
-    """
-    API stream video đã xử lý YOLO.
-    """
     try:
-        return await track_video_service(video_id)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-@router.get("/serve/{path:path}")
-async def serve_video(path: str):
-    full_path = os.path.abspath(os.path.join(settings.UPLOAD_DIR, path))  # ✅ CHUẨN
-    if not os.path.exists(full_path):
-        raise HTTPException(status_code=404, detail="File not found")
-    return FileResponse(path=full_path, media_type="video/mp4", filename=os.path.basename(full_path))
+        result = await track_video_service(video_id)
+        return result
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi: {str(e)}")
+@router.get("time_detection/{video_id}")
+async def time_detection(video_id: str):
+    try  :
+        result = await get_detection()
+        return result
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500 , detail=f"lỗi:{str(e)}")
