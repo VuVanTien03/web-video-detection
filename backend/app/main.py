@@ -10,7 +10,9 @@ from app.routes import user, video, auth
 from app.database import database
 import aiofiles
 import sys 
-sys.path.append(r'C:\DataMining\datamining\yolov9')
+from app.utils.path_helper import add_yolov9_to_sys_path
+
+add_yolov9_to_sys_path()
 # Thiết lập logging
 logging.basicConfig(
     level=logging.INFO,
