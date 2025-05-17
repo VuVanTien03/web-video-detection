@@ -119,91 +119,7 @@ async def get_path_video(video_id , user = Depends(get_current_active_user)) :
         return video['file_path']
     else : 
         raise HTTPException(status_code = 400 , detail = "not found")
-# async def yolo_warm():
 
-
-
-# # Hàm YOLO worker (xử lý ảnh từng frame)
-# def yolo_worker(model, image_stack, result):
-#     while True:
-#         if not image_stack.empty():
-#             frame = image_stack.get()
-#             with torch.no_grad():
-#                 # Thực hiện dự đoán YOLO trên frame
-#                 predictions = model(frame)
-#                 result.put(predictions)  # Đưa kết quả vào queue
-#
-#
-# def show_video_stream(video_path, image_stack, result):
-#     cap = cv2.VideoCapture(video_path)
-#     fps = cap.get(cv2.CAP_PROP_FPS)
-#     delay_time = 1 / fps if fps > 0 else 0.03
-#
-#     def generate():
-#         while cap.isOpened():
-#             ret, frame = cap.read()
-#             if not ret:
-#                 break
-#             image_stack.put(frame)
-#
-#             if not result.empty():
-#                 pre = result.get().pred[0]
-#                 for det in pre:
-#                     x1, y1, x2, y2, conf, class_id = det[:6]
-#                     x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
-#                     if conf < 0.8:
-#                         continue
-#                     label = "violence"
-#                     conf_str = f"{conf:.2f}"
-#                     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 4)
-#                     cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-#                     cv2.putText(frame, conf_str, (x1, y1 - 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-#
-#             # Encode frame thành JPEG
-#             ret, buffer = cv2.imencode('.jpg', frame)
-#             frame_bytes = buffer.tobytes()
-#
-#             # Yield frame với định dạng multipart
-#             yield (b'--frame\r\n'
-#                    b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-#
-#             time.sleep(delay_time)
-#
-#         cap.release()
-#
-#     return StreamingResponse(generate(), media_type='multipart/x-mixed-replace; boundary=frame')
-#
-#
-#
-#
-# from pathlib import Path
-#
-# # Đường dẫn tuyệt đối từ thư mục gốc của project
-# BASE_DIR = Path(__file__).resolve().parent.parent  # app/services/ => lên backend/app
-# DEFAULT_WEIGHTS_PATH = BASE_DIR / "services" / "gelan_t.pt"
-#
-# async def track_video_service(video_id, weights_path=DEFAULT_WEIGHTS_PATH, device=torch.device("cpu")):
-#     video = await video_collection.find_one({"_id": ObjectId(video_id)})
-#
-#     if not video:
-#         raise ValueError("Video not found")
-#
-#     video_path = video["file_path"]
-#
-#     # Load model YOLO
-#     model_backend = DetectMultiBackend(weights=str(weights_path), device=device)
-#     model = AutoShape(model_backend)
-#     model.eval()
-#
-#     result = queue.Queue()
-#     image_stack = queue.LifoQueue()
-#
-#     # Chạy YOLO worker
-#     threading.Thread(target=yolo_worker, args=(model, image_stack, result), daemon=True).start()
-#
-#     # Trả về stream
-#     return show_video_stream(video_path, image_stack, result)
-# # http://127.0.0.1:8000/api/v1/videos/track_video/681c445031bb616d2342388f
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
 import cv2
@@ -217,92 +133,7 @@ from pathlib import Path
 from bson import ObjectId
 from typing import List, Dict, Any
 import json
-
-# Đường dẫn tuyệt đối từ thư mục gốc của project
-BASE_DIR = Path(__file__).resolve().parent.parent
-DEFAULT_WEIGHTS_PATH = BASE_DIR / "services" / "gelan_t.pt"
-
-
-# Lớp Buffer khung ảnh với khả năng quản lý hiệu quả hơn và lưu trữ thông tin về hành vi bạo lực
-class FrameBuffer:
-    def __init__(self, max_size=5):
-        self.input_frames = queue.Queue(maxsize=max_size)
-        self.processed_frames = queue.Queue(maxsize=max_size)
-        self.latest_result = None
-        self.processing = True
-        self.lock = threading.Lock()
-        # Lưu trữ phát hiện bạo lực theo thời gian
-        self.violence_detections = []
-        # Theo dõi thời điểm bạo lực mới nhất để tránh lặp ghi
-        self.last_violence_time = -5  # Seconds
-
-    def put_input(self, frame):
-        # Nếu queue đầy, loại bỏ frame cũ nhất
-        if self.input_frames.full():
-            try:
-                self.input_frames.get_nowait()
-            except queue.Empty:
-                pass
-        try:
-            self.input_frames.put(frame, block=False)
-        except queue.Full:
-            pass
-
-    def get_input(self):
-        try:
-            return self.input_frames.get(block=True, timeout=0.1)
-        except queue.Empty:
-            return None
-
-    def put_result(self, frame, detection, timestamp=None):
-        with self.lock:
-            self.latest_result = (frame, detection, timestamp)
-
-    def get_latest(self):
-        with self.lock:
-            return self.latest_result
-
-    def record_violence(self, timestamp, confidence, box):
-        """Ghi lại thời điểm phát hiện bạo lực"""
-        with self.lock:
-            # Chỉ ghi lại nếu cách lần ghi cuối ít nhất 1 giây
-            if timestamp - self.last_violence_time >= 1.0:
-                self.violence_detections.append({
-                    "timestamp": timestamp,  # Thời điểm (giây)
-                    "time_str": self.format_time(timestamp),  # Định dạng thời gian dễ đọc
-                    "confidence": float(confidence),  # Độ tin cậy
-                    "box": [int(b) for b in box]  # Tọa độ bounding box
-                })
-                self.last_violence_time = timestamp
-
-    def get_violence_detections(self):
-        """Lấy danh sách các phát hiện bạo lực"""
-        with self.lock:
-            return self.violence_detections.copy()
-
-    @staticmethod
-    def format_time(seconds):
-        """Chuyển đổi số giây thành định dạng MM:SS"""
-        minutes = int(seconds / 60)
-        seconds = int(seconds % 60)
-        return f"{minutes:02d}:{seconds:02d}"
-
-    def stop(self):
-        self.processing = False
-
-
-async def get_path_video(video_id , user = Depends(get_current_active_user)) :
-    if ObjectId.is_valid(video_id ):
-        object_id = ObjectId(video_id)
-    user_id = user["_id"]
-    videos = get_all_videos(user_id)
-    user_upload_dir = os.path.join(settings.UPLOAD_DIR, f"user_{user_id}")
-    video_ids = [i["_id"] for i in videos]
-    if video_id in video_ids :
-        video = await video_collection.find_one({'_id':ObjectId(video_id)})
-        return video['file_path']
-    else :
-        raise HTTPException(status_code = 400 , detail = "not found")
+from app.schemas.FrameBuffer import FrameBuffer
 # async def yolo_warm():
 from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -471,7 +302,7 @@ async def get_detection():
     async def detection_stream():
         last_index = 0
         while frame_buffer.processing:
-            detections = frame_buffer.detections
+            detections = frame_buffer.get_detections()
             if len(detections) > last_index:
                 pre , timestamp = detections[last_index]
                 last_index += len(detections)
