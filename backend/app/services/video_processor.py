@@ -291,34 +291,29 @@ async def process_local_video(input_path: str, output_path: str) -> bool:
     Xử lý video sử dụng ffmpeg
     """
     try:
-        # Kiểm tra xem file đầu vào có tồn tại không
         if not os.path.exists(input_path):
             raise Exception(f"Input file not found: {input_path}")
-            
-        # Các tham số để xử lý video
+        
         cmd = [
             "ffmpeg",
             "-i", input_path,
-            "-c:v", "libx264",  # Video codec H.264
-            "-preset", "medium",  # Cân bằng giữa tốc độ nén và chất lượng
-            "-crf", "23",  # Chất lượng video
-            "-c:a", "aac",  # Audio codec AAC
-            "-b:a", "128k",  # Audio bitrate
-            "-movflags", "+faststart",  # Tối ưu để phát trực tuyến
-            "-y",  # Ghi đè nếu file đã tồn tại
+            "-c:v", "libx264",
+            "-preset", "medium",
+            "-crf", "23",
+            "-c:a", "aac",
+            "-b:a", "128k",
+            "-movflags", "+faststart",
+            "-y",
             output_path
         ]
         
-        process = await asyncio.create_subprocess_exec(
-            *cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
+        def run_ffmpeg():
+            return subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
-        stdout, stderr = await process.communicate()
-        
-        if process.returncode != 0:
-            raise Exception(f"Failed to process video: {stderr.decode()}")
+        result = await asyncio.to_thread(run_ffmpeg)
+
+        if result.returncode != 0:
+            raise Exception(f"Failed to process video: {result.stderr.decode()}")
         
         return True
     
