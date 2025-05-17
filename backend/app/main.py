@@ -1,4 +1,7 @@
 # File: app/main.py
+from app.utils.setup_path_yolo import add_yolov9_to_sys_path
+
+add_yolov9_to_sys_path()
 from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -10,7 +13,7 @@ from app.routes import user, video, auth
 from app.database import database
 import aiofiles
 import sys 
-sys.path.append(r'C:\DataMining\datamining\yolov9')
+
 # Thiết lập logging
 logging.basicConfig(
     level=logging.INFO,
