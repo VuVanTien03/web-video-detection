@@ -44,5 +44,5 @@ yarn-error.log*
 backend/uploads/
 
 # .env file for sensitive environment variables
-.env
+
 backend/app.log
