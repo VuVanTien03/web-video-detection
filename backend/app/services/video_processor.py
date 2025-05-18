@@ -116,7 +116,8 @@ async def process_video(video_id: str):
             {"$set": {
                 "status": "completed",
                 "duration": video_info.get("duration"),
-                "video_url": output_url  # Thêm URL của video đã xử lý
+                "video_url": output_url,  # Thêm URL của video đã xử lý
+                "file_path": output_path
             }}
         )
     

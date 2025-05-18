@@ -14,6 +14,7 @@ const Homepage = ({ content, setContent }) => {
   const [detections, setDetections] = useState([]);
 
   const extractVideoData = (data) => {
+    // Checks both nested and direct formats
     const video = data.video || data;
     return {
       video_url: video.video_url || video.url || video.file_path || "",
@@ -23,7 +24,7 @@ const Homepage = ({ content, setContent }) => {
     };
   };
 
-  // Process video through model
+  // Process video through model with error handling
   const processVideoWithModel = async (videoId) => {
     if (!videoId) return;
     
@@ -33,27 +34,75 @@ const Homepage = ({ content, setContent }) => {
       if (!token) throw new Error("Không tìm thấy token, vui lòng đăng nhập lại");
 
       // Đợi video được xử lý (poll /processed)
-  const waitForProcessing = async (videoId) => {
-    const token = localStorage.getItem('token');
-    for (let i = 0; i < 30; i++) {
-      const res = await fetch(`http://localhost:8000/api/v1/videos/${videoId}/processed`, {
+      const waitForProcessing = async (videoId) => {
+        const token = localStorage.getItem('token');
+        for (let i = 0; i < 30; i++) {
+          const res = await fetch(`http://localhost:8000/api/v1/videos/${videoId}/processed`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) return true;
+          if (res.status !== 202) throw new Error("Xử lý video thất bại");
+          await new Promise((r) => setTimeout(r, 2000));
+        }
+        throw new Error("Quá thời gian chờ xử lý video");
+      };
+
+      await waitForProcessing(videoId);
+      
+      // Gọi lại API để lấy video_url sau khi xử lý xong
+      const res = await fetch(`http://localhost:8000/api/v1/videos/${videoId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.ok) return true;
-      if (res.status !== 202) throw new Error("Xử lý video thất bại");
-      await new Promise((r) => setTimeout(r, 2000));
-    }
-    throw new Error("Quá thời gian chờ xử lý video");
-  };
-
-  await waitForProcessing(videoId);
-
-      // Call the track_video API
-      setTrackedVideoUrl(`http://localhost:8000/api/v1/videos/track_video/${videoId}`);
-
       
-      // Optionally fetch detection data
-      // fetchDetectionData(videoId);
+      if (!res.ok) {
+        throw new Error(`Lấy thông tin video thất bại: ${res.status}`);
+      }
+      
+      const data = await res.json();
+      console.log("Video data after processing:", data);
+      
+      // Xử lý dữ liệu một cách linh hoạt, đảm bảo trích xuất đúng thông tin video
+      const { video_url, title, description } = extractVideoData(data);
+
+      if (video_url) {
+        setCurrentVideoUrl(video_url);
+        setVideoTitle(title);
+        setVideoDescription(description);
+      }
+
+      try {
+        // Call the track_video API
+        const trackRes = await fetch(`http://localhost:8000/api/v1/videos/track_video/${videoId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+          method: 'GET',
+        });
+        
+        if (!trackRes.ok) {
+          console.error(`Lỗi khi gọi track_video: ${trackRes.status}`);
+          
+          // Nếu lỗi 500, vẫn hiển thị video gốc và thông báo lỗi
+          if (trackRes.status === 500) {
+            setError("Không thể hiển thị video với phân tích. Hiển thị video gốc.");
+            // Không thiết lập trackedVideoUrl để giữ video gốc
+            return;
+          }
+          
+          const errorText = await trackRes.text();
+          throw new Error(`Lỗi khi hiển thị video với phân tích: ${trackRes.status} - ${errorText}`);
+        }
+        
+        // Nếu thành công, thiết lập URL theo dõi
+        setTrackedVideoUrl(`http://localhost:8000/api/v1/videos/track_video/${videoId}`);
+        
+        // Có thể thử fetch dữ liệu detection nếu cần
+        fetchDetectionData(videoId);
+        
+      } catch (trackError) {
+        console.error('Lỗi khi hiển thị video với phân tích:', trackError);
+        setError(`Lỗi khi hiển thị video với phân tích: ${trackError.message}. Hiển thị video gốc.`);
+        // Không thiết lập trackedVideoUrl để giữ video gốc
+      }
+      
     } catch (error) {
       console.error('Xử lý video thất bại:', error);
       setError("Xử lý video thất bại: " + error.message);
@@ -179,19 +228,34 @@ const Homepage = ({ content, setContent }) => {
       }
 
       const data = await res.json();
-      const { video_url, title, description } = extractVideoData(data);
-
-      if (!video_url) throw new Error("Không tìm thấy đường dẫn video trong dữ liệu trả về");
-
-      // Store video details
-      setCurrentVideoUrl(video_url);
+      console.log("Dữ liệu video trả về:", data); // Ghi log để debug
+      
+      // Trích xuất ID video từ dữ liệu trực tiếp (không cần .video)
+      // Đối với API /url, dữ liệu được trả về trực tiếp, không trong trường "video"
+      const videoId = data.id || "";
+      const title = data.title || "Video từ URL";
+      const description = data.description || "Video tải từ đường dẫn";
+      const videoUrl = data.video_url || data.url || data.file_path || "";
+      
+      console.log("Extracted videoId:", videoId);
+      console.log("Extracted videoUrl:", videoUrl);
+      
+      if (!videoId) {
+        throw new Error("Không tìm thấy ID video trong dữ liệu trả về");
+      }
+      
+      // Lưu thông tin video
+      setVideoId(videoId);
       setVideoTitle(title);
       setVideoDescription(description);
-      setVideoId(data.id);
+      if (videoUrl) {
+        setCurrentVideoUrl(videoUrl);
+      }
       setContent(null);
       
-      // Now process the video through the model
-      await processVideoWithModel(data.id);
+      // Xử lý video qua model
+      await processVideoWithModel(videoId);
+      
     } catch (error) {
       console.error('Tải từ URL thất bại:', error);
       setError("Tải từ URL thất bại: " + error.message);

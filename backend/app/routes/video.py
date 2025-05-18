@@ -118,7 +118,7 @@ async def create_url_video(
 
     result = await video_collection.insert_one(new_video)
     video_id = result.inserted_id
-    background_tasks.add_task(process_video, str(video_id))
+    await process_video(str(video_id))
     created_video = await video_collection.find_one({"_id": video_id})
 
     return {
@@ -128,7 +128,7 @@ async def create_url_video(
         "description": created_video.get("description"),
         "original_filename": created_video.get("original_filename"),
         "file_path": created_video.get("file_path"),
-        "video_url": created_video.get("url") or "",
+        "video_url": created_video.get("video_url") or created_video.get("file_path") or "",  # Đã đúng public URL
         "source_type": created_video["source_type"],
         "upload_date": created_video["upload_date"],
         "duration": created_video.get("duration"),
@@ -654,3 +654,18 @@ async def serve_video(path: str):
     if not os.path.exists(full_path):
         raise HTTPException(status_code=404, detail="File not found")
     return FileResponse(path=full_path, media_type="video/mp4", filename=os.path.basename(full_path))
+@router.get("/videos/{video_id}")
+async def get_video(video_id: str):
+    video = await video_collection.find_one({"_id": ObjectId(video_id)})
+    if not video:
+        raise HTTPException(status_code=404, detail="Video not found")
+    
+    return {
+        "video": {
+            "id": str(video["_id"]),
+            "title": video.get("title"),
+            "description": video.get("description"),
+            "video_url": video.get("video_url") or video.get("file_path") or "",
+            "status": video.get("status")
+        }
+    }
