@@ -101,7 +101,7 @@ if __name__=="__main__":
     threading.Thread(target=yolo_worker, daemon=True).start()
     video_path = r"D:\Downloads\Gym Fight over a Cable Machine 🤔 💪🏼 Let’s see who Wins 🏆 #fighting #gym #fighter #shorts #viral.mp4"
     video_path3 = r"D:\Downloads\10 Fastest Finishes in UFC History 🏆.mp4"
-    video4 = r"D:\Downloads\videoplayback (1).mp4"
-    show_video(video4)
+    video4 = r"D:\Downloads\videoplayback (3).mp4"
+    show_video(video_path3)
     # print(get_fps(video_path3))
     # track(video_path3)
