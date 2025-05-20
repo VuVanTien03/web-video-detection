@@ -218,6 +218,9 @@ class FrameBuffer:
             if len(self.detection_list) > 100:
                 self.detection_list = self.detection_list[-100:]
 
+    def get_violence_detection(self):
+        with self.lock:
+            return self.detection_list.copy()
     def get_detections(self):
         """Get all stored detection results"""
         with self.lock:
@@ -237,6 +240,11 @@ class FrameBuffer:
                 except queue.Empty:
                     break
 
+    def format_time(self, seconds):
+        """Định dạng thời gian từ giây thành chuỗi MM:SS"""
+        minutes = int(seconds // 60)
+        seconds = int(seconds % 60)
+        return f"{minutes:02d}:{seconds:02d}"
     def hard_reset(self):
         """Complete reset of buffer state for reuse"""
         self.stop()  # First stop all processing
@@ -343,6 +351,7 @@ def show_video_stream(video_path, model, device="cpu", conf_threshold=0.8):
             detection_batch = []
             batch_counter = 0
             stream_start_time = time.time()
+            last_violence_count = 0
 
             try:
                 print("Starting video stream processing")
@@ -408,11 +417,26 @@ def show_video_stream(video_path, model, device="cpu", conf_threshold=0.8):
                             if detections:
                                 frame_buffer.put_detections((detections, timestamp))
                                 detection_batch.extend(detections)
+                                last_violence_count = len(detections)
+                        # timestamp_text = f"Thời gian: {frame_buffer.format_time(current_video_time)}"
+                        # cv2.putText(frame, timestamp_text, (10, 60),
+                        #             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                        #
+                        # # Đếm số lượng phát hiện bạo lực trong frame hiện tại
+                        # violence_count = len(detections)
+                        # cv2.putText(frame, f"violen: {violence_count}", (10, 120),
+                        #             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
                     except queue.Empty:
                         # No processed frame available yet
                         pass
+                    timestamp_text = f"time: {frame_buffer.format_time(current_video_time)}"
+                    cv2.putText(frame, timestamp_text, (10, 60),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                    violence_count = len(frame_buffer.get_violence_detection())
+                    cv2.putText(frame, f"violence: {violence_count}", (10, 90),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
-                    
                     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 85]
                     ret, buffer = cv2.imencode('.jpg', frame, encode_param)
                     frame_bytes = buffer.tobytes()
