@@ -628,7 +628,7 @@ async def search_videos(
     
     return videos
 
-from app.services.video_service import get_detection
+from app.services.video_service import track_video_service
 # Định nghĩa API route track_video
 @router.get("/track_video/{video_id}")
 async def track_video(video_id: str):
@@ -639,15 +639,16 @@ async def track_video(video_id: str):
         raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi: {str(e)}")
-@router.get("time_detection/{video_id}")
-async def time_detection(video_id: str):
-    try  :
-        result = await get_detection()
-        return result
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        raise HTTPException(status_code=500 , detail=f"lỗi:{str(e)}")
+# @router.get("time_detection/{video_id}")
+# async def time_detection(video_id: str):
+#     try  :
+#         result = await get_detection()
+#         return result
+#     except HTTPException as e:
+#         raise e
+#     except Exception as e:
+#         raise HTTPException(status_code=500 , detail=f"lỗi:{str(e)}")
+
 @router.get("/serve/{path:path}")
 async def serve_video(path: str):
     full_path = os.path.abspath(os.path.join(settings.UPLOAD_DIR, path))  # ✅ CHUẨN

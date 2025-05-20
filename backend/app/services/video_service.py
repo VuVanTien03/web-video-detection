@@ -1,4 +1,6 @@
 # File: app/services/video_service.py
+import traceback
+from collections import deque
 
 from app.database import video_collection, processed_video_collection, user_collection
 from bson import ObjectId
@@ -130,294 +132,453 @@ async def get_path_video(video_id, user=Depends(get_current_active_user)):
         raise HTTPException(status_code=404, detail="Video not found")
     
     return video['file_path']
-
+import asyncio
 # Đường dẫn tuyệt đối từ thư mục gốc của project
 BASE_DIR = Path(__file__).resolve().parent.parent
 DEFAULT_WEIGHTS_PATH = BASE_DIR / "services" / "gelan_t.pt"
 
-# Lớp Buffer khung ảnh với khả năng quản lý hiệu quả
+
 class FrameBuffer:
-    _instance = None
-    
-    @classmethod
-    def get_buffer(cls, max_size=5):
-        if cls._instance is None:
-            cls._instance = FrameBuffer(max_size)
-        return cls._instance
-    
-    def __init__(self, max_size=5):
-        self.input_frames = queue.Queue(maxsize=max_size)
+    _buffer  = None # singlenton instance
+    _lock = threading.Lock()
+
+    def __init__(self , max_size = 5):
+        self.input_frames = deque(maxlen=max_size)
         self.processed_frames = queue.Queue(maxsize=max_size)
-        self.latest_result = None
+        self.detection_list = []
         self.processing = True
         self.lock = threading.Lock()
-        # Lưu trữ phát hiện bạo lực theo thời gian
-        self.violence_detections = []
-        # Theo dõi thời điểm bạo lực mới nhất để tránh lặp ghi
-        self.last_violence_time = -5  # Seconds
-        # Lưu trữ các kết quả phát hiện
-        self.detections = []
+        self.worker_thread = None
+        self.reset_called = False
+    @classmethod
+    def get_buffer(cls , max_size = 5 , force_new = False):
+        """
+        get singleton buffer instance or create new if needed
+        args :
+         maxsize : max size of frame buffer
+         force_new = : if true , always create new instance
+        """
+        with cls._lock:
+            if cls._buffer is None or force_new:
+                cls._buffer = FrameBuffer(max_size = max_size)
+            return cls._buffer
+    @classmethod
+    def reset_singleton(cls):
+        """force reset the singleton instance completely"""
+        with cls._lock:
+            if cls._buffer is not None:
+                cls._buffer.stop()
+                cls._buffer = None
 
-    def put_input(self, frame):
-        # Nếu queue đầy, loại bỏ frame cũ nhất
-        if self.input_frames.full():
-            try:
-                self.input_frames.get_nowait()
-            except queue.Empty:
-                pass
-        try:
-            self.input_frames.put(frame, block=False)
-        except queue.Full:
-            pass
-
+    def put_input(self , frame):
+        """ add a new frame to the input queue"""
+        if self.processing and not self.reset_called:
+            self.input_frames.append(frame)
     def get_input(self):
-        try:
-            return self.input_frames.get(block=True, timeout=0.1)
-        except queue.Empty:
+        """get the nex frame to process (lifo) """
+        if not self.processing or self.reset_called:
+            return None
+        try :
+            return self.input_frames.pop()
+        except IndexError:
             return None
 
     def put_processed(self, frame, detection):
-        """Lưu frame đã xử lý cùng kết quả phát hiện"""
-        # Nếu queue đầy, loại bỏ frame cũ nhất
-        if self.processed_frames.full():
+        """Store processed frame with its detection results"""
+        if not self.processing or self.reset_called:
+            return
+
+        with self.lock:
             try:
-                self.processed_frames.get_nowait()
-            except queue.Empty:
-                pass
-        try:
-            self.processed_frames.put((frame, detection), block=False)
-        except queue.Full:
-            pass
+                self.processed_frames.put_nowait((frame, detection))
+            except queue.Full:
+                # If queue is full, remove oldest item and add new one
+                try:
+                    self.processed_frames.get_nowait()
+                    self.processed_frames.put_nowait((frame, detection))
+                except (queue.Empty, queue.Full):
+                    pass
 
     def get_processed_frame(self):
-        """Lấy frame đã được xử lý"""
-        return self.processed_frames.get(block=False)
+        """Get the next processed frame from queue"""
+        if not self.processing or self.reset_called:
+            raise queue.Empty()
+
+        with self.lock:
+            return self.processed_frames.get_nowait()
 
     def put_detections(self, detection_data):
-        """Lưu thông tin phát hiện"""
-        with self.lock:
-            self.detections.append(detection_data)
+        """Store detection results for API access"""
+        if not self.processing or self.reset_called:
+            return
 
-    def put_result(self, frame, detection, timestamp=None):
-        """Lưu kết quả mới nhất"""
         with self.lock:
-            self.latest_result = (frame, detection, timestamp)
+            self.detection_list.append(detection_data)
+            # Keep list at reasonable size
+            if len(self.detection_list) > 100:
+                self.detection_list = self.detection_list[-100:]
 
-    def get_latest(self):
-        """Lấy kết quả mới nhất"""
+    def get_detections(self):
+        """Get all stored detection results"""
         with self.lock:
-            return self.latest_result
-
-    def record_violence(self, timestamp, confidence, box):
-        """Ghi lại thời điểm phát hiện bạo lực"""
-        with self.lock:
-            # Chỉ ghi lại nếu cách lần ghi cuối ít nhất 1 giây
-            if timestamp - self.last_violence_time >= 1.0:
-                self.violence_detections.append({
-                    "timestamp": timestamp,
-                    "time_str": self.format_time(timestamp),
-                    "confidence": float(confidence),
-                    "box": [int(b) for b in box]
-                })
-                self.last_violence_time = timestamp
-
-    def get_violence_detections(self):
-        """Lấy danh sách các phát hiện bạo lực"""
-        with self.lock:
-            return self.violence_detections.copy()
-
-    @staticmethod
-    def format_time(seconds):
-        """Chuyển đổi số giây thành định dạng MM:SS"""
-        minutes = int(seconds / 60)
-        seconds = int(seconds % 60)
-        return f"{minutes:02d}:{seconds:02d}"
+            return self.detection_list.copy()
 
     def stop(self):
-        """Dừng xử lý"""
+        """Stop processing and release resources"""
         self.processing = False
+        self.reset_called = True
 
-# Hàm YOLO worker (xử lý ảnh)
-def yolo_worker(model, frame_buffer, conf_threshold=0.5):
-    while frame_buffer.processing:
-        frame = frame_buffer.get_input()
-        if frame is None:
-            time.sleep(0.01)  # Ngủ một chút để tránh tiêu tốn CPU
-            continue
-
-        with torch.no_grad():
-            # Thực hiện dự đoán YOLO trên frame
-            predictions = model(frame)
-            frame_buffer.put_processed(frame, predictions)
-
-def show_video_stream(video_path, model, device="cpu"):
-    cap = cv2.VideoCapture(video_path)
-    if not cap.isOpened():
-        raise ValueError(f"Could not open video file: {video_path}")
-
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    frame_time = 1.0 / fps if fps > 0 else 0.03
-
-    # Khởi tạo buffer và worker threads
-    frame_buffer = FrameBuffer.get_buffer()
-    
-    # Khởi động worker thread
-    worker_thread = threading.Thread(
-        target=yolo_worker,
-        args=(model, frame_buffer, 0.8),
-        daemon=True
-    )
-    worker_thread.start()
-
-    def generate():
-        frame_count = 0
-        last_time = time.time()
-
-        try:
-            while cap.isOpened():
-                ret, frame = cap.read()
-                if not ret:
+        # Clear all queues to release memory
+        with self.lock:
+            self.input_frames.clear()
+            while not self.processed_frames.empty():
+                try:
+                    self.processed_frames.get_nowait()
+                except queue.Empty:
                     break
 
-                frame_count += 1
-                current_time = time.time()
-                elapsed = current_time - last_time
-                # tính thời gian hiện tại của video
-                current_video_time = frame_count/fps if fps > 0 else 0
-                
-                # Đưa frame vào để xử lý
-                frame_buffer.put_input(frame.copy())
+    def hard_reset(self):
+        """Complete reset of buffer state for reuse"""
+        self.stop()  # First stop all processing
 
-                # Lấy kết quả mới nhất đã xử lý
-                result = None
+        with self.lock:
+            # Reset all data structures
+            self.input_frames.clear()
+
+            # Empty the queue
+            while not self.processed_frames.empty():
                 try:
-                    result = frame_buffer.get_processed_frame()
+                    self.processed_frames.get_nowait()
                 except queue.Empty:
-                    pass
-                
-                detections = []
-                if result:
-                    processed_frame, predictions = result
-                    timestamp = frame_count/fps if fps > 0 else 0
+                    break
+
+            # Reset detection list and state flags
+            self.detection_list = []
+            self.processing = True
+            self.reset_called = False
+
+            # Signal completion
+            print("FrameBuffer hard reset completed")
+
+
+# YOLO worker function with improved error handling and state management
+def yolo_worker(model, frame_buffer, conf_threshold=0.5):
+    """Process frames using YOLO model in a separate thread"""
+    worker_id = threading.get_ident()
+    print(f"YOLO worker started with ID: {worker_id}")
+
+    error_count = 0
+    max_errors = 5  # Max consecutive errors before backing off
+
+    try:
+        while frame_buffer.processing and not frame_buffer.reset_called:
+            try:
+                frame = frame_buffer.get_input()
+                if frame is None:
+                    time.sleep(0.01)  # Sleep to avoid CPU spinning
+                    continue
+
+                with torch.no_grad():
+                    # Run YOLO predictions on the frame
+                    predictions = model(frame)
+                    frame_buffer.put_processed(frame, predictions)
+
+                # Reset error count on successful processing
+                error_count = 0
+
+            except Exception as e:
+                error_count += 1
+                print(f"Error in YOLO worker ({worker_id}): {str(e)}")
+
+                # Exponential backoff on repeated errors
+                sleep_time = min(0.1 * (2 ** error_count), 5.0)
+                time.sleep(sleep_time)
+
+                # Break loop if too many consecutive errors
+                if error_count >= max_errors:
+                    print(f"Too many errors in YOLO worker, stopping: {worker_id}")
+                    break
+
+    except Exception as e:
+        print(f"Critical error in YOLO worker thread ({worker_id}): {str(e)}")
+
+    finally:
+        print(f"YOLO worker thread exiting: {worker_id}")
+
+
+# Improved video streaming function with better resource management
+def show_video_stream(video_path, model, device="cpu", conf_threshold=0.8):
+    """Process video and return a streaming response with detections"""
+    # Reset and get a clean FrameBuffer instance
+    FrameBuffer.reset_singleton()
+    frame_buffer = FrameBuffer.get_buffer(max_size=10)
+
+    try:
+        # Open video file
+        cap = cv2.VideoCapture(video_path)
+        if not cap.isOpened():
+            raise ValueError(f"Could not open video file: {video_path}")
+
+        # Get video properties
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        frame_time = 1.0 / fps if fps > 0 else 0.03
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+        # Start worker thread - ensure it's only started once
+        worker_thread = threading.Thread(
+            target=yolo_worker,
+            args=(model, frame_buffer, conf_threshold),
+            daemon=True
+        )
+
+        # Store the thread in the buffer for monitoring
+        frame_buffer.worker_thread = worker_thread
+        worker_thread.start()
+        print(f"Started YOLO worker thread: {worker_thread.ident}")
+
+        def generate():
+            """Generator for video frames with detection overlays"""
+            frame_count = 0
+            last_time = time.time()
+            detection_batch = []
+            batch_counter = 0
+            stream_start_time = time.time()
+
+            try:
+                print("Starting video stream processing")
+                while cap.isOpened() and frame_buffer.processing:
+                    ret, frame = cap.read()
+                    if not ret:
+                        print("End of video reached")
+                        break
+
+                    frame_count += 1
+                    current_time = time.time()
+                    elapsed = current_time - last_time
+
+                    # Calculate current video timestamp
+                    current_video_time = frame_count / fps if fps > 0 else 0
+                    progress_percent = (frame_count / total_frames * 100) if total_frames > 0 else 0
+
+                    # Debug output every 100 frames
+                    if frame_count % 100 == 0:
+                        print(f"Processing frame {frame_count}/{total_frames} ({progress_percent:.1f}%)")
+
+                    # Queue frame for processing
+                    frame_copy = frame.copy()  # Explicit copy to avoid reference issues
+                    frame_buffer.put_input(frame_copy)
+
+                    # Try to get processed results
+                    detections = []
+                    try:
+                        result = frame_buffer.get_processed_frame()
+                        processed_frame, predictions = result
+
+                        # Record detection timestamp
+                        timestamp = current_video_time
+
+                        # Process YOLO predictions
+                        if len(predictions.pred) > 0 and len(predictions.pred[0]) > 0:
+                            for det in predictions.pred[0]:
+                                x1, y1, x2, y2, conf, class_id = det[:6]
+                                if conf < 0.85:
+                                    continue
+
+                                # Create detection object with explicit Python types
+                                detection = {
+                                    "time": round(float(current_video_time), 2),
+                                    "frame": int(frame_count),
+                                    "confidence": float(conf),
+                                    "bounding_box": [float(x1), float(y1), float(x2), float(y2)],
+                                    "label": "violence"
+                                }
+                                detections.append(detection)
+
+                                # Log detections
+                                if frame_count % 100 == 0:
+                                    print(f"Detection at frame {frame_count}: conf={float(conf):.2f}")
+
+                                # Draw detection on frame
+                                x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
+                                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                                cv2.putText(frame, f"Violence: {float(conf):.2f}", (x1, y1 - 10),
+                                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+                            # Store detections for API access
+                            if detections:
+                                frame_buffer.put_detections((detections, timestamp))
+                                detection_batch.extend(detections)
+                    except queue.Empty:
+                        # No processed frame available yet
+                        pass
+
                     
-                    # Lưu phát hiện vào buffer
-                    frame_buffer.put_detections((predictions, timestamp))
+                    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 85]
+                    ret, buffer = cv2.imencode('.jpg', frame, encode_param)
+                    frame_bytes = buffer.tobytes()
 
-                    # Vẽ các hộp giới hạn và nhãn
-                    if len(predictions.pred) > 0:
-                        for det in predictions.pred[0]:
-                            x1, y1, x2, y2, conf, class_id = det[:6]
-                            if conf < 0.8:
-                                continue
-                                
-                            detections.append({
-                                "time": float(current_video_time),
-                                "confidence": float(conf),
-                                "bounding_box": [float(x1), float(y1), float(x2), float(y2)],
-                                "label": "violence"
-                            })
-
-                            # Ghi lại phát hiện bạo lực
-                            frame_buffer.record_violence(current_video_time, conf, [x1, y1, x2, y2])
-
-                            x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
-                            label = "violence"
-                            conf_str = f"{conf:.2f}"
-
-                            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 4)
-                            cv2.putText(frame, label, (x1, y1 - 10),
-                                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                            cv2.putText(frame, conf_str, (x1, y1 - 25),
-                                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                
-                # Gửi thông tin phát hiện khi có và mỗi 1000 frame
-                if detections and frame_count % 1000 == 0:
+                    # Yield frame to client
                     yield (
+                            b'--frame\r\n'
+                            b'Content-Type: image/jpeg\r\n\r\n' +
+                            frame_bytes +
+                            b'\r\n'
+                    )
+
+                    # Control frame rate
+                    processing_time = time.time() - current_time
+                    sleep_time = max(0, frame_time - processing_time)
+                    if sleep_time > 0:
+                        time.sleep(sleep_time)
+
+            except Exception as e:
+                print(f"Error in stream generator: {str(e)}")
+                # On error, also yield the error to client for visibility
+                error_json = json.dumps({"error": str(e)})
+                yield (
                         b'--frame\r\n'
                         b'Content-Type: application/json\r\n\r\n' +
-                        json.dumps({"detections": detections}).encode() + b'\r\n'
-                    )
-                
-                # Hiển thị FPS
-                fps_text = f"FPS: {1.0 / elapsed:.1f}" if elapsed > 0 else "FPS: -"
-                cv2.putText(frame, fps_text, (10, 30),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                        error_json.encode() + b'\r\n'
+                )
 
-                # Cập nhật thời gian cho frame tiếp theo
-                last_time = current_time
+            finally:
+                # Clean up resources
+                print("Cleaning up resources in generator")
+                try:
+                    if cap.isOpened():
+                        cap.release()
+                except Exception as e:
+                    print(f"Error releasing video capture: {str(e)}")
 
-                # Encode frame thành JPEG với chất lượng tốt hơn
-                encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 85]
-                ret, buffer = cv2.imencode('.jpg', frame, encode_param)
-                frame_bytes = buffer.tobytes()
+                # Signal processing completion
+                frame_buffer.processing = False
+                print("Video stream ended, resources released")
 
-                # Gửi frame đến client
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+        return StreamingResponse(
+            generate(),
+            media_type='multipart/x-mixed-replace; boundary=frame'
+        )
 
-                # Kiểm soát frame rate để tránh quá tải CPU
-                processing_time = time.time() - current_time
-                sleep_time = max(0, frame_time - processing_time)
-                if sleep_time > 0:
-                    time.sleep(sleep_time)
+    except Exception as e:
+        # Clean up on error
+        try:
+            frame_buffer.stop()
+            if 'cap' in locals() and cap.isOpened():
+                cap.release()
+        except:
+            pass
+
+        print(f"Error in show_video_stream: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing video: {str(e)}")
+
+
+# Improved detection stream function
+async def get_detection_stream():
+    """Generate stream of detection results for API access"""
+    frame_buffer = FrameBuffer.get_buffer()
+
+    async def detection_stream():
+        last_index = 0
+        error_count = 0
+
+        try:
+            while frame_buffer.processing and error_count < 5:
+                try:
+                    detections = frame_buffer.get_detections()
+
+                    # Get new detections since last check
+                    if len(detections) > last_index:
+                        new_detections = detections[last_index:]
+                        last_index = len(detections)
+
+                        # Format and yield detection data
+                        detection_data = []
+                        for det_group, timestamp in new_detections:
+                            for det in det_group:
+                                det_copy = det.copy()  # Make a copy to avoid modifying original
+                                det_copy["timestamp"] = float(timestamp)
+                                detection_data.append(det_copy)
+
+                        if detection_data:
+                            detection_json = json.dumps({"detections": detection_data})
+                            yield (
+                                    b'--frame\r\n'
+                                    b'Content-Type: application/json\r\n\r\n' +
+                                    detection_json.encode() + b'\r\n'
+                            )
+                            error_count = 0  # Reset error count on successful yield
+                except Exception as e:
+                    error_count += 1
+                    print(f"Error in detection stream: {str(e)}")
+
+                await asyncio.sleep(0.1)
+
+        except Exception as e:
+            print(f"Critical error in detection stream: {str(e)}")
+            # Notify client of error
+            error_json = json.dumps({"error": str(e)})
+            yield (
+                    b'--frame\r\n'
+                    b'Content-Type: application/json\r\n\r\n' +
+                    error_json.encode() + b'\r\n'
+            )
 
         finally:
-            # Đảm bảo dọn dẹp tài nguyên
-            frame_buffer.stop()
-            cap.release()
+            print("Detection stream ended")
 
     return StreamingResponse(
-        generate(),
+        detection_stream(),
         media_type='multipart/x-mixed-replace; boundary=frame'
     )
 
-async def track_video_service(video_id, weights_path=DEFAULT_WEIGHTS_PATH, device=None):
-    # Xác định thiết bị phù hợp
+
+# Service function to process video
+async def track_video_service(video_id,weights_path=DEFAULT_WEIGHTS_PATH, device=None):
+
+    """Main service function to process a video with violence detection"""
+    # Determine appropriate device
     if device is None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # Tìm video trong database
-    video = await video_collection.find_one({"_id": ObjectId(video_id)})
+    print(f"Starting video processing service for video_id: {video_id} on device: {device}")
 
-    if not video:
-        raise HTTPException(status_code=404, detail="Video not found")
+    # Force reset the singleton to ensure clean state
+    FrameBuffer.reset_singleton()
 
-    video_path = video["file_path"]
-
-    # Kiểm tra xem file video có tồn tại
-    if not Path(video_path).exists():
-        raise HTTPException(status_code=404, detail="Video file not found on server")
-
-    # Load model YOLO
     try:
-        model_backend = DetectMultiBackend(weights=str(weights_path), device=device)
-        model = AutoShape(model_backend)
-        model.eval()
+        # Find video in database
+        video = await video_collection.find_one({"_id": ObjectId(video_id)})
+        if not video:
+            raise HTTPException(status_code=404, detail="Video not found")
+
+        video_path = video["file_path"]
+        print(f"Found video path: {video_path}")
+
+        # Check if video file exists
+        if not Path(video_path).exists():
+            raise HTTPException(status_code=404, detail="Video file not found on server")
+
+        # Load YOLO model
+        print(f"Loading YOLO model from: {weights_path}")
+        try:
+            model_backend = DetectMultiBackend(weights=str(weights_path), device=device)
+            model = AutoShape(model_backend)
+            model.eval()
+            print("YOLO model loaded successfully")
+        except Exception as e:
+            print(f"Failed to load model: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Failed to load model: {str(e)}")
+
+        # Return video stream with detections
+        print("Starting video stream...")
+        return show_video_stream(video_path, model, device=device)
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to load model: {str(e)}")
+        # Ensure frame buffer is stopped in case of error
+        print(f"Error in track_video_service: {str(e)}")
+        try:
+            FrameBuffer.reset_singleton()
+        except:
+            pass
+        raise HTTPException(status_code=500, detail=f"Error processing video: {str(e)}")
 
-    # Trả về stream video
-    return show_video_stream(video_path, model, device=device)
-
-import asyncio
-async def get_detection():
-    frame_buffer = FrameBuffer.get_buffer()
-    
-    async def detection_stream():
-        last_index = 0
-        while frame_buffer.processing:
-            with frame_buffer.lock:
-                detections = frame_buffer.detections
-                
-            if len(detections) > last_index:
-                new_detections = detections[last_index:]
-                last_index = len(detections)
-                
-                yield(
-                    b'--frame\r\n'
-                    b'Content-Type: application/json\r\n\r\n' +
-                    json.dumps({"detections": new_detections}).encode() + b'\r\n'
-                )
-            await asyncio.sleep(0.1)
-            
-    return StreamingResponse(detection_stream(), media_type="multipart/x-mixed-replace; boundary=frame")
